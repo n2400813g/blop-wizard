@@ -1,0 +1,51 @@
+{
+  "name": "blop-mcp-wizard",
+  "version": "0.1.0",
+  "description": "CLI wizard to install and configure blop-use MCP",
+  "packageManager": "pnpm@10.30.3",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "blop-wizard": "./dist/bin.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/bin.js",
+    "try": "pnpm build && node dist/bin.js --help",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:integration": "vitest run src/steps/add-mcp-server-to-clients/flow.integration.test.ts",
+    "lint": "tsc --noEmit"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "blop",
+    "mcp",
+    "wizard",
+    "cli",
+    "cursor",
+    "claude-code"
+  ],
+  "author": "Blop",
+  "license": "MIT",
+  "dependencies": {
+    "@clack/prompts": "^0.9.1",
+    "chalk": "^5.4.1",
+    "dotenv": "^17.2.3",
+    "jsonc-parser": "^3.3.1",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "@types/yargs": "^17.0.33",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

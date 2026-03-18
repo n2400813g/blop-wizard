@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "blop": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/Users/alejandrolaurlund/Development/blop-wizard/blop-mcp-wizard/.tmp-test-fixtures/blop-mcp-flow-FDzLFS",
+        "run",
+        "python",
+        "-m",
+        "blop.server"
+      ],
+      "env": {
+        "GOOGLE_API_KEY": "test-key",
+        "APP_BASE_URL": "https://example.com",
+        "BLOP_DB_PATH": ".blop/runs.db",
+        "BLOP_HEADLESS": "true",
+        "BLOP_MAX_STEPS": "50"
+      }
+    }
+  }
+}
