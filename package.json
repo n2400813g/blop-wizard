@@ -2,6 +2,14 @@
   "name": "blop-wizard",
   "version": "0.1.0",
   "description": "CLI wizard to install and configure blop release-confidence MCP",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/n2400813g/blop-wizard.git"
+  },
+  "homepage": "https://github.com/n2400813g/blop-wizard#readme",
+  "bugs": {
+    "url": "https://github.com/n2400813g/blop-wizard/issues"
+  },
   "packageManager": "pnpm@10.30.3",
   "type": "module",
   "main": "dist/index.js",
@@ -11,6 +19,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "prepack": "pnpm build",
     "start": "node dist/bin.js",
     "try": "pnpm build && node dist/bin.js --help",
     "typecheck": "tsc --noEmit",
@@ -31,6 +40,9 @@
   ],
   "author": "Blop",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@clack/prompts": "^0.9.1",
     "chalk": "^5.4.1",

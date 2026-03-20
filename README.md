@@ -2,7 +2,7 @@
 
 Install and configure `blop-mcp` across coding tools with a guided CLI.
 
-`blop-wizard` is the setup front door: it creates a Python runtime, installs `blop` (PyPI by default), writes a release-confidence `.env`, and configures MCP clients around the canonical 4-tool MVP workflow.
+`blop-wizard` is the setup front door: it creates a managed Python runtime, installs `blop` (PyPI by default), writes a production-shaped release-confidence `.env`, and configures MCP clients around the canonical 4-tool MVP workflow.
 
 ## Quickstart (PyPI-first)
 
@@ -24,10 +24,11 @@ node dist/bin.js
 - Checks Python and `uv`.
 - Creates a runtime environment (default: `~/.blop-mcp`).
 - Installs `blop` from PyPI (or local source in `--install-source local` mode).
-- Creates or updates runtime `.env` with the canonical MVP posture:
-  `BLOP_CAPABILITIES_PROFILE=production_minimal` and `BLOP_ENABLE_COMPAT_TOOLS=false`.
+- Creates or updates runtime `.env` with a managed production posture:
+  `BLOP_ENV=production`, `BLOP_REQUIRE_ABSOLUTE_PATHS=true`, absolute runtime-local artifact paths,
+  `BLOP_CAPABILITIES_PROFILE=production_minimal`, and `BLOP_ENABLE_COMPAT_TOOLS=false`.
 - Adds/updates MCP config (`blop`) for supported vibecoding tools.
-- Runs validation with `doctor`, including a check that the canonical release tools import cleanly.
+- Runs validation with `doctor`, including runtime posture, venv entrypoint, and canonical release-tool checks.
 
 ## Canonical MVP flow after install
 
@@ -49,6 +50,11 @@ blop-wizard --package-version 0.4.0
 
 # Local source mode (editable install)
 blop-wizard --install-source local --blop-path /absolute/path/to/blop-mcp
+
+# Local source mode with a dedicated managed runtime
+blop-wizard --install-source local \
+  --blop-path /absolute/path/to/blop-mcp \
+  --runtime-path ~/.blop-mcp-dev
 
 # Non-interactive mode
 GOOGLE_API_KEY=your_key_here blop-wizard --ci
@@ -72,8 +78,9 @@ blop-wizard doctor --verbose
 ## Path model
 
 - Runtime path: where `.venv` and `.env` live (default `~/.blop-mcp`, override with `--runtime-path`).
+- Runtime-local artifacts: the wizard defaults `BLOP_DB_PATH`, `BLOP_RUNS_DIR`, and `BLOP_DEBUG_LOG` under the runtime path.
 - Project path: where project Cursor MCP config is written (default current working directory, override with `--project-path`).
-- Local source path: used only when `--install-source local` (via `--blop-path`).
+- Local source path: used only when `--install-source local` (via `--blop-path`) as the editable install source, separate from the managed runtime.
 
 ## Where config is written
 
@@ -114,9 +121,17 @@ Use these IDs with `--targets`:
 
 1. Run `blop-wizard doctor --verbose`.
 2. If using local mode, confirm `--blop-path` points to a valid `blop-mcp` source repo.
-3. Re-run setup to repair runtime/config:
+3. Re-run setup to repair an existing runtime/config in place:
    `blop-wizard --runtime-path /path/to/runtime`
 4. Restart Cursor/Claude Code after MCP config changes.
+
+## Release Readiness
+
+- `pnpm test`
+- `pnpm typecheck`
+- `pnpm build`
+- `pnpm pack --dry-run`
+- `blop-wizard doctor --verbose`
 
 ## Development
 

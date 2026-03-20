@@ -2,4 +2,9 @@ node_modules
 dist
 .pnpm-store
 .pnpm-home
-
+.DS_Store
+.blop
+.tmp-test-fixtures
+.tmp-vitest-cache
+coverage
+*.log
