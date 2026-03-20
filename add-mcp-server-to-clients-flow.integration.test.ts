@@ -23,7 +23,7 @@ describe('mcp add/remove integration flow', () => {
     const env = buildDefaultEnv({
       GOOGLE_API_KEY: 'test-key',
       APP_BASE_URL: 'https://example.com',
-    });
+    }, blopPath);
 
     const added = await addMCPServerToClientsStep({
       runtimePath: blopPath,
@@ -40,9 +40,11 @@ describe('mcp add/remove integration flow', () => {
     expect(fs.existsSync(configPath)).toBe(true);
     const rawAfterAdd = fs.readFileSync(configPath, 'utf8');
     const parsedAfterAdd = jsonc.parse(rawAfterAdd) as Record<string, any>;
-    expect(parsedAfterAdd.mcpServers.blop.command).toBe('uv');
-    expect(parsedAfterAdd.mcpServers.blop.args[1]).toBe(path.resolve(blopPath));
+    expect(parsedAfterAdd.mcpServers.blop.command).toBe(path.join(path.resolve(blopPath), '.venv', 'bin', 'blop-mcp'));
+    expect(parsedAfterAdd.mcpServers.blop.args).toBeUndefined();
     expect(parsedAfterAdd.mcpServers.blop.env.GOOGLE_API_KEY).toBe('test-key');
+    expect(parsedAfterAdd.mcpServers.blop.env.BLOP_ENV).toBe('production');
+    expect(parsedAfterAdd.mcpServers.blop.env.BLOP_REQUIRE_ABSOLUTE_PATHS).toBe('true');
     expect(parsedAfterAdd.mcpServers.blop.env.BLOP_CAPABILITIES_PROFILE).toBe('production_minimal');
     expect(parsedAfterAdd.mcpServers.blop.env.BLOP_ENABLE_COMPAT_TOOLS).toBe('false');
 

@@ -1,7 +1,6 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import type { InstallSource } from './types.js';
 
 function hasBlopSourceMarkers(targetPath: string): boolean {
   const pyproject = path.join(targetPath, 'pyproject.toml');
@@ -10,7 +9,7 @@ function hasBlopSourceMarkers(targetPath: string): boolean {
   return fs.existsSync(pyproject) && fs.existsSync(envExample) && fs.existsSync(srcServer);
 }
 
-function resolveLocalSourcePath(providedPath?: string): string {
+export function resolveLocalSourcePath(providedPath?: string): string {
   const fromArg = providedPath ? path.resolve(providedPath) : undefined;
   if (fromArg && hasBlopSourceMarkers(fromArg)) {
     return fromArg;
@@ -42,14 +41,10 @@ function resolveLocalSourcePath(providedPath?: string): string {
 }
 
 export function resolveRuntimePath(options: {
-  installSource: InstallSource;
+  installSource: 'pypi' | 'local';
   runtimePath?: string;
   localSourcePath?: string;
 }): string {
-  if (options.installSource === 'local') {
-    return resolveLocalSourcePath(options.localSourcePath);
-  }
-
   if (options.runtimePath) {
     return path.resolve(options.runtimePath);
   }

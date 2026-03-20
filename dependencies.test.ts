@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildBootstrapPlan } from './dependencies.js';
+import { buildBootstrapPlan, getVenvBlopMcpPath, getVenvPythonPath } from './dependencies.js';
 
 describe('dependencies bootstrap planning', () => {
   it('uses PyPI install command by default for pypi mode', () => {
@@ -11,8 +11,11 @@ describe('dependencies bootstrap planning', () => {
 
     expect(plan.venvCwd).toBe('/tmp/blop-runtime');
     expect(plan.installCwd).toBe('/tmp/blop-runtime');
-    expect(plan.installCommand).toBe('uv pip install "blop==0.4.0"');
-    expect(plan.playwrightCommand).toContain('playwright install chromium');
+    expect(plan.pythonPath).toBe(getVenvPythonPath('/tmp/blop-runtime'));
+    expect(plan.installCommand).toBe(
+      `uv pip install --python "${getVenvPythonPath('/tmp/blop-runtime')}" "blop==0.4.0"`,
+    );
+    expect(plan.playwrightCommand).toContain('install chromium');
   });
 
   it('uses editable install for local mode', () => {
@@ -24,7 +27,13 @@ describe('dependencies bootstrap planning', () => {
     });
 
     expect(plan.installCwd).toBe('/tmp/local-blop');
-    expect(plan.installCommand).toBe('uv pip install -e .');
+    expect(plan.installCommand).toBe(
+      `uv pip install --python "${getVenvPythonPath('/tmp/local-blop')}" -e "/tmp/local-blop"`,
+    );
     expect(plan.playwrightCommand).toBeUndefined();
+  });
+
+  it('resolves the venv entrypoint path for direct MCP launches', () => {
+    expect(getVenvBlopMcpPath('/tmp/blop-runtime')).toBe('/tmp/blop-runtime/.venv/bin/blop-mcp');
   });
 });

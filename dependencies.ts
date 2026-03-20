@@ -1,4 +1,5 @@
 import { execSync, spawnSync } from 'child_process';
+import fs from 'fs';
 import path from 'path';
 import clack from './clack.js';
 import type { BootstrapOptions } from './types.js';
@@ -49,28 +50,51 @@ function runInstall(command: string, cwd: string): void {
   });
 }
 
+function quoteShellArg(value: string): string {
+  return JSON.stringify(value);
+}
+
+export function getVenvBinDir(runtimePath: string): string {
+  return path.join(path.resolve(runtimePath), '.venv', process.platform === 'win32' ? 'Scripts' : 'bin');
+}
+
+export function getVenvPythonPath(runtimePath: string): string {
+  return path.join(getVenvBinDir(runtimePath), process.platform === 'win32' ? 'python.exe' : 'python');
+}
+
+export function getVenvBlopMcpPath(runtimePath: string): string {
+  return path.join(getVenvBinDir(runtimePath), process.platform === 'win32' ? 'blop-mcp.exe' : 'blop-mcp');
+}
+
+export function getVenvPlaywrightPath(runtimePath: string): string {
+  return path.join(getVenvBinDir(runtimePath), process.platform === 'win32' ? 'playwright.exe' : 'playwright');
+}
+
 export function buildBootstrapPlan(options: BootstrapOptions): {
   venvCwd: string;
   installCwd: string;
   installCommand: string;
+  pythonPath: string;
   playwrightCommand?: string;
 } {
   const { runtimePath, localSourcePath, installSource, packageSpec, skipPlaywright } = options;
+  const pythonPath = getVenvPythonPath(runtimePath);
   const installCommand =
     installSource === 'local'
-      ? 'uv pip install -e .'
-      : `uv pip install ${JSON.stringify(packageSpec ?? 'blop')}`;
-  const installCwd = installSource === 'local' ? localSourcePath ?? runtimePath : runtimePath;
+      ? `uv pip install --python ${quoteShellArg(pythonPath)} -e ${quoteShellArg(path.resolve(localSourcePath ?? runtimePath))}`
+      : `uv pip install --python ${quoteShellArg(pythonPath)} ${quoteShellArg(packageSpec ?? 'blop')}`;
+  const installCwd = runtimePath;
   const playwrightCommand = skipPlaywright
     ? undefined
     : process.platform === 'linux'
-      ? 'playwright install chromium --with-deps --no-shell'
-      : 'playwright install chromium --no-shell';
+      ? `${quoteShellArg(getVenvPlaywrightPath(runtimePath))} install chromium --with-deps --no-shell`
+      : `${quoteShellArg(getVenvPlaywrightPath(runtimePath))} install chromium --no-shell`;
 
   return {
     venvCwd: runtimePath,
     installCwd,
     installCommand,
+    pythonPath,
     playwrightCommand,
   };
 }
@@ -78,6 +102,7 @@ export function buildBootstrapPlan(options: BootstrapOptions): {
 export async function ensureBlopBootstrap(options: BootstrapOptions): Promise<void> {
   const spinner = clack.spinner();
   const { runtimePath, installSource } = options;
+  fs.mkdirSync(runtimePath, { recursive: true });
   const plan = buildBootstrapPlan(options);
 
   if (!checkPythonVersion().ok) {
@@ -87,9 +112,13 @@ export async function ensureBlopBootstrap(options: BootstrapOptions): Promise<vo
     throw new Error('uv is required. Install with: curl -LsSf https://astral.sh/uv/install.sh | sh');
   }
 
-  spinner.start('Creating virtual environment...');
-  runInstall('uv venv', plan.venvCwd);
-  spinner.stop('Virtual environment ready');
+  if (fs.existsSync(plan.pythonPath)) {
+    clack.log.step(`Reusing existing virtual environment at ${path.dirname(plan.pythonPath)}`);
+  } else {
+    spinner.start('Creating virtual environment...');
+    runInstall('uv venv', plan.venvCwd);
+    spinner.stop('Virtual environment ready');
+  }
 
   spinner.start(
     installSource === 'local' ? 'Installing blop package (editable)...' : 'Installing blop package from PyPI...',
@@ -103,7 +132,7 @@ export async function ensureBlopBootstrap(options: BootstrapOptions): Promise<vo
     spinner.stop('Playwright Chromium installed');
   }
 
-  const venvBlopMcp = path.join(runtimePath, '.venv', 'bin', 'blop-mcp');
+  const venvBlopMcp = getVenvBlopMcpPath(runtimePath);
   if (!commandExists('blop-mcp') && !commandExists(venvBlopMcp)) {
     clack.log.warn(
       'blop-mcp binary not found in PATH yet. This is usually fine when using uv --directory in MCP config.',

@@ -30,11 +30,19 @@ export interface EnvConfig {
   LOGIN_URL?: string;
   TEST_USERNAME?: string;
   TEST_PASSWORD?: string;
+  BLOP_ENV?: string;
   BLOP_DB_PATH?: string;
+  BLOP_RUNS_DIR?: string;
+  BLOP_DEBUG_LOG?: string;
+  BLOP_REQUIRE_ABSOLUTE_PATHS?: string;
   BLOP_CAPABILITIES_PROFILE?: string;
   BLOP_ENABLE_COMPAT_TOOLS?: string;
+  BLOP_ALLOW_INTERNAL_URLS?: string;
   BLOP_HEADLESS?: string;
   BLOP_MAX_STEPS?: string;
+  BLOP_RUN_TIMEOUT_SECS?: string;
+  BLOP_STEP_TIMEOUT_SECS?: string;
+  BLOP_ALLOW_SCREENSHOT_LLM?: string;
 }
 
 export interface MCPClientResult {

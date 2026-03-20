@@ -1,6 +1,6 @@
 import os from 'os';
 import path from 'path';
-import { commandExists } from './dependencies.js';
+import { commandExists, getVenvBlopMcpPath } from './dependencies.js';
 import { buildCursorServerConfig, SERVER_NAME } from './defaults.js';
 import {
   CliCommandMCPClient,
@@ -143,7 +143,7 @@ export class CodexMCPClient extends CliCommandMCPClient {
       listCommand: 'codex mcp list',
       addCommandBuilder: (runtimePath, env) => {
         const envArgs = buildCliEnvArgs(env, '--env');
-        return `codex mcp add ${SERVER_NAME} uv --directory ${quoteShell(path.resolve(runtimePath))} run python -m blop.server ${envArgs}`.trim();
+        return `codex mcp add ${SERVER_NAME} ${quoteShell(getVenvBlopMcpPath(runtimePath))} ${envArgs}`.trim();
       },
       removeCommandBuilder: () => `codex mcp remove ${SERVER_NAME}`,
       supportedCheck: () => commandExists('codex'),

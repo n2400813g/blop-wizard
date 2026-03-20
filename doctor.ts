@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { runCommand } from './dependencies.js';
-import { resolveRuntimePath } from './paths.js';
+import { getVenvBlopMcpPath, getVenvPythonPath, runCommand } from './dependencies.js';
+import { resolveLocalSourcePath, resolveRuntimePath } from './paths.js';
 import { readEnvFile } from './config-write.js';
 import type { DoctorOptions } from './types.js';
 import { DEFAULT_BLOP_PACKAGE_NAME, DEFAULT_INSTALL_SOURCE } from './defaults.js';
@@ -28,19 +28,24 @@ export async function runDoctor(options: DoctorOptions = {}): Promise<number> {
   });
 
   let runtimePath = '';
+  let localSourcePath = '';
   try {
     const installSource = options.installSource ?? DEFAULT_INSTALL_SOURCE;
     const packageSpec = options.packageVersion
       ? `${options.packageName ?? DEFAULT_BLOP_PACKAGE_NAME}==${options.packageVersion}`
       : (options.packageName ?? DEFAULT_BLOP_PACKAGE_NAME);
+    localSourcePath = installSource === 'local' ? resolveLocalSourcePath(options.blopPath) : '';
     runtimePath = resolveRuntimePath({
       installSource,
       runtimePath: options.runtimePath,
-      localSourcePath: options.blopPath,
+      localSourcePath,
     });
     rows.push({ label: 'runtime path resolved', ok: true, detail: runtimePath });
     rows.push({ label: 'install source', ok: true, detail: installSource });
     rows.push({ label: 'package spec', ok: true, detail: packageSpec });
+    if (localSourcePath) {
+      rows.push({ label: 'local source path resolved', ok: true, detail: localSourcePath });
+    }
   } catch (error) {
     rows.push({
       label: 'runtime path resolved',
@@ -51,10 +56,22 @@ export async function runDoctor(options: DoctorOptions = {}): Promise<number> {
 
   if (runtimePath) {
     const envPath = path.join(runtimePath, '.env');
+    const venvPython = getVenvPythonPath(runtimePath);
+    const venvBlopMcp = getVenvBlopMcpPath(runtimePath);
     rows.push({
       label: '.env present',
       ok: fs.existsSync(envPath),
       detail: envPath,
+    });
+    rows.push({
+      label: 'venv python present',
+      ok: fs.existsSync(venvPython),
+      detail: venvPython,
+    });
+    rows.push({
+      label: 'blop-mcp entrypoint present',
+      ok: fs.existsSync(venvBlopMcp),
+      detail: venvBlopMcp,
     });
 
     const env = readEnvFile(envPath);
@@ -62,9 +79,19 @@ export async function runDoctor(options: DoctorOptions = {}): Promise<number> {
       label: 'GOOGLE_API_KEY configured',
       ok: Boolean(env.GOOGLE_API_KEY),
     });
+    rows.push({
+      label: 'production env posture',
+      ok:
+        env.BLOP_ENV === 'production' &&
+        env.BLOP_REQUIRE_ABSOLUTE_PATHS === 'true' &&
+        Boolean(env.BLOP_DB_PATH && path.isAbsolute(env.BLOP_DB_PATH)) &&
+        Boolean(env.BLOP_RUNS_DIR && path.isAbsolute(env.BLOP_RUNS_DIR)) &&
+        Boolean(env.BLOP_DEBUG_LOG && path.isAbsolute(env.BLOP_DEBUG_LOG)),
+      detail: `BLOP_ENV=${env.BLOP_ENV ?? ''} DB=${env.BLOP_DB_PATH ?? ''} RUNS=${env.BLOP_RUNS_DIR ?? ''} LOG=${env.BLOP_DEBUG_LOG ?? ''}`,
+    });
 
     const importCheck = runCommand(
-      `uv --directory ${JSON.stringify(runtimePath)} run python -c "import blop.server; print('ok')"`,
+      `${JSON.stringify(venvPython)} -c "import blop.server; print('ok')"`,
     );
     rows.push({
       label: 'blop server import',
@@ -73,12 +100,19 @@ export async function runDoctor(options: DoctorOptions = {}): Promise<number> {
     });
 
     const canonicalCheck = runCommand(
-      `uv --directory ${JSON.stringify(runtimePath)} run python -c "from blop.server import validate_release_setup, discover_critical_journeys, run_release_check, triage_release_blocker; print('ok')"`,
+      `${JSON.stringify(venvPython)} -c "from blop.server import validate_release_setup, discover_critical_journeys, run_release_check, triage_release_blocker; print('ok')"`,
     );
     rows.push({
       label: 'canonical MVP tools import',
       ok: canonicalCheck.ok && canonicalCheck.stdout.includes('ok'),
       detail: canonicalCheck.ok ? canonicalCheck.stdout.trim() : canonicalCheck.stderr.trim(),
+    });
+
+    const entrypointCheck = runCommand(`${JSON.stringify(venvBlopMcp)} --help`);
+    rows.push({
+      label: 'blop-mcp entrypoint runnable',
+      ok: entrypointCheck.ok,
+      detail: entrypointCheck.ok ? entrypointCheck.stdout.trim() : entrypointCheck.stderr.trim(),
     });
   }
 

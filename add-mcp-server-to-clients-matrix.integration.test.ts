@@ -35,7 +35,7 @@ describe('mcp matrix add/remove flow', () => {
     const env = buildDefaultEnv({
       GOOGLE_API_KEY: 'matrix-test-key',
       APP_BASE_URL: 'https://example.com',
-    });
+    }, runtimePath);
 
     const cases = [
       {
@@ -167,9 +167,13 @@ describe('mcp matrix add/remove flow', () => {
       const rawAfterAdd = fs.readFileSync(clientCase.configPath, 'utf8');
       const parsedAfterAdd = jsonc.parse(rawAfterAdd) as Record<string, any>;
       expect(parsedAfterAdd.mcpServers[SERVER_NAME]).toBeTruthy();
-      expect(parsedAfterAdd.mcpServers[SERVER_NAME].command).toBe('uv');
-      expect(parsedAfterAdd.mcpServers[SERVER_NAME].args[1]).toBe(path.resolve(runtimePath));
+      expect(parsedAfterAdd.mcpServers[SERVER_NAME].command).toBe(
+        path.join(path.resolve(runtimePath), '.venv', 'bin', 'blop-mcp'),
+      );
+      expect(parsedAfterAdd.mcpServers[SERVER_NAME].args).toBeUndefined();
       expect(parsedAfterAdd.mcpServers[SERVER_NAME].env.GOOGLE_API_KEY).toBe('matrix-test-key');
+      expect(parsedAfterAdd.mcpServers[SERVER_NAME].env.BLOP_ENV).toBe('production');
+      expect(parsedAfterAdd.mcpServers[SERVER_NAME].env.BLOP_RUNS_DIR).toBe(path.join(path.resolve(runtimePath), 'runs'));
 
       const addedAgain = await addMCPServerToClientsStep({
         runtimePath,

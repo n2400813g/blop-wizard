@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import clack from './clack.js';
-import { resolveProjectPath, resolveRuntimePath } from './paths.js';
+import { resolveLocalSourcePath, resolveProjectPath, resolveRuntimePath } from './paths.js';
 import { bootstrapBlop } from './bootstrap-blop.js';
 import {
   addMCPServerToClientsStep,
@@ -35,10 +35,11 @@ export interface MCPRemoveOptions {
 
 export async function runMCPAdd(options: MCPAddOptions): Promise<void> {
   const installSource = options.installSource ?? DEFAULT_INSTALL_SOURCE;
+  const localSourcePath = installSource === 'local' ? resolveLocalSourcePath(options.blopPath) : undefined;
   const runtimePath = resolveRuntimePath({
     installSource,
     runtimePath: options.runtimePath,
-    localSourcePath: options.blopPath,
+    localSourcePath,
   });
   const projectPath = resolveProjectPath(options.projectPath);
   const packageSpec = options.packageVersion
@@ -48,7 +49,7 @@ export async function runMCPAdd(options: MCPAddOptions): Promise<void> {
   const { env } = await bootstrapBlop({
     installSource,
     runtimePath,
-    localSourcePath: installSource === 'local' ? runtimePath : undefined,
+    localSourcePath,
     packageSpec,
     ci: options.ci,
     skipPlaywright: options.skipPlaywright,

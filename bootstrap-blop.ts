@@ -62,10 +62,13 @@ export async function bootstrapBlop(
     answers = await promptEnvValues(existing);
   }
 
-  const merged = buildDefaultEnv({
-    ...existing,
-    ...answers,
-  });
+  const merged = buildDefaultEnv(
+    {
+      ...existing,
+      ...answers,
+    },
+    runtimePath,
+  );
   upsertEnvFile(envPath, merged);
   clack.log.success(`Updated ${path.relative(process.cwd(), envPath)}`);
 

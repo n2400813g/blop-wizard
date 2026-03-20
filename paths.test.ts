@@ -2,7 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { resolveProjectPath, resolveRuntimePath } from './paths.js';
+import { resolveLocalSourcePath, resolveProjectPath, resolveRuntimePath } from './paths.js';
 
 function setupBlopLikeDir(root: string): string {
   fs.mkdirSync(path.join(root, 'src', 'blop'), { recursive: true });
@@ -28,7 +28,7 @@ describe('paths', () => {
   it('resolves explicit local source path when valid', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'blop-mcp-path-test-'));
     const blopDir = setupBlopLikeDir(path.join(dir, 'blop-use'));
-    expect(resolveRuntimePath({ installSource: 'local', localSourcePath: blopDir })).toBe(
+    expect(resolveLocalSourcePath(blopDir)).toBe(
       path.resolve(blopDir),
     );
   });
@@ -37,9 +37,14 @@ describe('paths', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'blop-mcp-path-test-'));
     const blopDir = setupBlopLikeDir(path.join(dir, 'blop-use'));
     process.chdir(blopDir);
-    expect(fs.realpathSync(resolveRuntimePath({ installSource: 'local' }))).toBe(
+    expect(fs.realpathSync(resolveLocalSourcePath())).toBe(
       fs.realpathSync(path.resolve(blopDir)),
     );
+  });
+
+  it('keeps local install runtime separate from local source path', () => {
+    const runtimeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blop-mcp-runtime-test-'));
+    expect(resolveRuntimePath({ installSource: 'local', runtimePath: runtimeDir })).toBe(path.resolve(runtimeDir));
   });
 
   it('resolves pypi runtime path from explicit arg', () => {
