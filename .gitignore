@@ -1,10 +1,18 @@
-node_modules
-dist
-.pnpm-store
-.pnpm-home
+node_modules/
+dist/
+.pnpm-store/
+.pnpm-home/
+coverage/
+.tmp-vitest-cache/
+
+# OS/editor noise
 .DS_Store
-.blop
-.tmp-test-fixtures
-.tmp-vitest-cache
-coverage
+*.swp
+*.swo
+
+# Runtime outputs (must never be committed)
+.blop/
 *.log
+
+# Generated test fixtures (integration runs)
+.tmp-test-fixtures/

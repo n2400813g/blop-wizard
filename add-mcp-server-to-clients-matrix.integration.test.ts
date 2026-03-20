@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import * as jsonc from 'jsonc-parser';
 import { buildDefaultEnv, SERVER_NAME } from './defaults.js';
 import {
@@ -22,11 +22,22 @@ import {
   createZedMCPClient,
 } from './add-mcp-server-to-clients-client-vibe-tools.js';
 
+const tempDirsToClean = new Set<string>();
+
 function createTempDir(prefix: string): string {
   const sandboxTmpRoot = path.join(process.cwd(), '.tmp-test-fixtures');
   fs.mkdirSync(sandboxTmpRoot, { recursive: true });
-  return fs.mkdtempSync(path.join(sandboxTmpRoot, prefix));
+  const dir = fs.mkdtempSync(path.join(sandboxTmpRoot, prefix));
+  tempDirsToClean.add(dir);
+  return dir;
 }
+
+afterEach(() => {
+  for (const dir of tempDirsToClean) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  tempDirsToClean.clear();
+});
 
 describe('mcp matrix add/remove flow', () => {
   it('supports priority JSON vibecoding clients with target filtering', async () => {

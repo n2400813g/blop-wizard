@@ -127,6 +127,7 @@ Use these IDs with `--targets`:
 
 ## Release Readiness
 
+- `pnpm check:repo-hygiene`
 - `pnpm test`
 - `pnpm typecheck`
 - `pnpm build`
@@ -136,6 +137,7 @@ Use these IDs with `--targets`:
 ## Development
 
 ```bash
+pnpm check:repo-hygiene
 pnpm typecheck
 pnpm test
 pnpm test:integration
@@ -143,3 +145,9 @@ pnpm build
 ```
 
 `test:integration` uses temporary fixtures and never touches real user MCP configs.
+
+## Repository hygiene
+
+- This repository tracks source and intentional project files only.
+- Generated runtime data (`.blop/`), temporary test fixtures (`.tmp-test-fixtures/`), coverage, and logs are intentionally ignored.
+- Run `pnpm check:repo-hygiene` before pushing to ensure no generated artifacts were accidentally tracked.

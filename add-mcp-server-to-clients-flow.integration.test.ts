@@ -1,20 +1,30 @@
 import fs from 'fs';
 import path from 'path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import * as jsonc from 'jsonc-parser';
 import { addMCPServerToClientsStep, removeMCPServerFromClientsStep } from './add-mcp-server-to-clients.js';
 import { buildDefaultEnv } from './defaults.js';
+
+const tempDirsToClean = new Set<string>();
 
 function createTempBlopFixture(): string {
   const sandboxTmpRoot = path.join(process.cwd(), '.tmp-test-fixtures');
   fs.mkdirSync(sandboxTmpRoot, { recursive: true });
   const root = fs.mkdtempSync(path.join(sandboxTmpRoot, 'blop-mcp-flow-'));
+  tempDirsToClean.add(root);
   fs.mkdirSync(path.join(root, 'src', 'blop'), { recursive: true });
   fs.writeFileSync(path.join(root, 'pyproject.toml'), '[project]\nname="blop"\n', 'utf8');
   fs.writeFileSync(path.join(root, '.env.example'), 'GOOGLE_API_KEY=\n', 'utf8');
   fs.writeFileSync(path.join(root, 'src', 'blop', 'server.py'), 'def run():\n    pass\n', 'utf8');
   return root;
 }
+
+afterEach(() => {
+  for (const dir of tempDirsToClean) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  tempDirsToClean.clear();
+});
 
 describe('mcp add/remove integration flow', () => {
   it('adds then removes blop server against temp project config', async () => {
