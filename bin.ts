@@ -6,6 +6,7 @@ import { runWizard } from './run.js';
 import { runMCPAdd, runMCPRemove } from './mcp.js';
 import { runDoctor } from './doctor.js';
 import { runRepair } from './repair.js';
+import { runUpgrade } from './upgrade.js';
 import { DEFAULT_BLOP_PACKAGE_NAME, DEFAULT_INSTALL_SOURCE } from './defaults.js';
 
 const isInteractive = Boolean(process.stdin.isTTY);
@@ -25,6 +26,7 @@ yargs(hideBin(process.argv))
   .usage('$0 mcp remove [options]')
   .usage('$0 doctor [options]')
   .usage('$0 repair [options]')
+  .usage('$0 upgrade [options]')
   .command(
     '$0',
     'Install and configure blop-mcp',
@@ -240,6 +242,86 @@ yargs(hideBin(process.argv))
         verbose: argv.verbose,
       });
       process.exit(code);
+    },
+  )
+  .command(
+    'upgrade',
+    'Upgrade or reinstall an existing runtime and refresh MCP setup',
+    (cmd) =>
+      cmd
+        .option('blop-path', {
+          type: 'string',
+          description: 'Path to local blop-mcp source repository (local mode only)',
+        })
+        .option('install-source', {
+          choices: ['pypi', 'local'] as const,
+          default: DEFAULT_INSTALL_SOURCE,
+        })
+        .option('runtime-path', {
+          type: 'string',
+          description: 'Directory where the blop runtime environment lives',
+        })
+        .option('project-path', {
+          type: 'string',
+          description: 'Project directory where .cursor/mcp.json should be written',
+        })
+        .option('package-name', {
+          type: 'string',
+          default: DEFAULT_BLOP_PACKAGE_NAME,
+        })
+        .option('package-version', {
+          type: 'string',
+        })
+        .option('reinstall', {
+          type: 'boolean',
+          default: false,
+          description: 'Recreate the managed virtualenv before reinstalling blop',
+        })
+        .option('cursor-only', {
+          type: 'boolean',
+          default: false,
+          description: 'Upgrade only Cursor configuration',
+        })
+        .option('include-claude', {
+          type: 'boolean',
+          default: true,
+          description: 'Upgrade Claude Code when available',
+        })
+        .option('ci', {
+          type: 'boolean',
+          default: false,
+          description: 'Non-interactive mode',
+        })
+        .option('targets', {
+          type: 'array',
+          description: 'Specific client IDs/names to target (e.g. cursor vscode cline codex)',
+        })
+        .option('skip-playwright', {
+          type: 'boolean',
+          default: false,
+          description: 'Skip Playwright Chromium installation',
+        }),
+    async (argv) => {
+      try {
+        const code = await runUpgrade({
+          installSource: argv['install-source'] as 'pypi' | 'local',
+          runtimePath: argv['runtime-path'],
+          blopPath: argv['blop-path'],
+          projectPath: argv['project-path'],
+          packageName: argv['package-name'],
+          packageVersion: argv['package-version'],
+          reinstall: argv.reinstall,
+          ci: argv.ci || !isInteractive,
+          targets: Array.isArray(argv.targets) ? argv.targets.map((value) => String(value)) : [],
+          cursorOnly: argv['cursor-only'],
+          includeClaude: argv['include-claude'],
+          skipPlaywright: argv['skip-playwright'],
+        });
+        process.exit(code);
+      } catch (error) {
+        printCliError(error);
+        process.exit(1);
+      }
     },
   )
   .command(

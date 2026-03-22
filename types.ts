@@ -22,6 +22,7 @@ export interface BootstrapOptions {
   packageSpec?: string;
   ci?: boolean;
   skipPlaywright?: boolean;
+  reinstall?: boolean;
 }
 
 export interface EnvConfig {
@@ -85,4 +86,19 @@ export interface DoctorRow {
   label: string;
   ok: boolean;
   detail?: string;
+}
+
+export interface UpgradeOptions {
+  installSource?: InstallSource;
+  runtimePath?: string;
+  blopPath?: string;
+  projectPath?: string;
+  packageName?: string;
+  packageVersion?: string;
+  ci?: boolean;
+  targets?: string[];
+  cursorOnly?: boolean;
+  includeClaude?: boolean;
+  skipPlaywright?: boolean;
+  reinstall?: boolean;
 }

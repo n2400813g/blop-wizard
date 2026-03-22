@@ -86,6 +86,12 @@ blop-wizard doctor --verbose
 
 # Diagnose and repair an existing runtime in place
 blop-wizard repair
+
+# Upgrade the installed runtime in place
+blop-wizard upgrade --package-version 0.3.0
+
+# Recreate the managed virtualenv cleanly, then reinstall
+blop-wizard upgrade --reinstall --package-version 0.3.0
 ```
 
 ## Path model
@@ -161,6 +167,13 @@ Use these IDs with `--targets`:
 3. Repair an existing runtime/config in place:
    `blop-wizard repair --runtime-path /path/to/runtime`
 4. Restart Cursor/Claude Code after MCP config changes.
+
+## Upgrade and reinstall
+
+- Use `blop-wizard upgrade` when you want to refresh an existing managed runtime without manually cleaning it up.
+- Default upgrade mode keeps the current runtime directory and updates the installed `blop-mcp` package in place.
+- `blop-wizard upgrade --reinstall` recreates the managed `.venv` before reinstalling the package, while preserving the runtime `.env`.
+- After either path, the wizard refreshes MCP client config and re-runs validation checks through the same managed flow.
 
 ## Release Readiness
 

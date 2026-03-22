@@ -101,7 +101,7 @@ export function buildBootstrapPlan(options: BootstrapOptions): {
 
 export async function ensureBlopBootstrap(options: BootstrapOptions): Promise<void> {
   const spinner = clack.spinner();
-  const { runtimePath, installSource } = options;
+  const { runtimePath, installSource, reinstall } = options;
   fs.mkdirSync(runtimePath, { recursive: true });
   const plan = buildBootstrapPlan(options);
 
@@ -110,6 +110,12 @@ export async function ensureBlopBootstrap(options: BootstrapOptions): Promise<vo
   }
   if (!commandExists('uv')) {
     throw new Error('uv is required. Install with: curl -LsSf https://astral.sh/uv/install.sh | sh');
+  }
+
+  if (reinstall && fs.existsSync(path.dirname(plan.pythonPath))) {
+    spinner.start('Recreating virtual environment...');
+    fs.rmSync(path.dirname(plan.pythonPath), { recursive: true, force: true });
+    spinner.stop('Previous virtual environment removed');
   }
 
   if (fs.existsSync(plan.pythonPath)) {
