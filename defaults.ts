@@ -9,6 +9,9 @@ export const DEFAULT_BLOP_PACKAGE_NAME = 'blop';
 
 export const DEFAULT_ENV_KEYS: Array<keyof EnvConfig> = [
   'GOOGLE_API_KEY',
+  'BLOP_LLM_PROVIDER',
+  'ANTHROPIC_API_KEY',
+  'OPENAI_API_KEY',
   'APP_BASE_URL',
   'LOGIN_URL',
   'TEST_USERNAME',
@@ -26,6 +29,10 @@ export function buildDefaultEnv(overrides: Partial<EnvConfig>, runtimePath = pro
   const resolvedRuntimePath = path.resolve(runtimePath);
   return {
     GOOGLE_API_KEY: overrides.GOOGLE_API_KEY ?? '',
+    BLOP_LLM_PROVIDER: (overrides.BLOP_LLM_PROVIDER ?? 'google').trim().toLowerCase(),
+    BLOP_LLM_MODEL: overrides.BLOP_LLM_MODEL,
+    ANTHROPIC_API_KEY: overrides.ANTHROPIC_API_KEY,
+    OPENAI_API_KEY: overrides.OPENAI_API_KEY,
     APP_BASE_URL: overrides.APP_BASE_URL,
     LOGIN_URL: overrides.LOGIN_URL,
     TEST_USERNAME: overrides.TEST_USERNAME,
@@ -51,6 +58,7 @@ export function buildDefaultEnv(overrides: Partial<EnvConfig>, runtimePath = pro
     BLOP_MAX_STEPS: overrides.BLOP_MAX_STEPS ?? '50',
     BLOP_RUN_TIMEOUT_SECS: overrides.BLOP_RUN_TIMEOUT_SECS ?? '1800',
     BLOP_STEP_TIMEOUT_SECS: overrides.BLOP_STEP_TIMEOUT_SECS ?? '45',
+    BLOP_MAX_CONCURRENT_RUNS: overrides.BLOP_MAX_CONCURRENT_RUNS ?? '10',
     BLOP_ALLOW_SCREENSHOT_LLM: overrides.BLOP_ALLOW_SCREENSHOT_LLM ?? 'false',
   };
 }

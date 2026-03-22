@@ -19,7 +19,9 @@ describe('default env posture', () => {
     expect(env.BLOP_ALLOW_INTERNAL_URLS).toBe('false');
     expect(env.BLOP_RUN_TIMEOUT_SECS).toBe('1800');
     expect(env.BLOP_STEP_TIMEOUT_SECS).toBe('45');
+    expect(env.BLOP_MAX_CONCURRENT_RUNS).toBe('10');
     expect(env.GOOGLE_API_KEY).toBe('test-key');
+    expect(env.BLOP_LLM_PROVIDER).toBe('google');
     expect(env.APP_BASE_URL).toBe('https://example.com');
   });
 

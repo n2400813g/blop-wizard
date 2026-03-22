@@ -3,15 +3,53 @@ import path from 'path';
 import { getVenvBlopMcpPath, getVenvPythonPath, runCommand } from './dependencies.js';
 import { resolveLocalSourcePath, resolveRuntimePath } from './paths.js';
 import { readEnvFile } from './config-write.js';
-import type { DoctorOptions } from './types.js';
+import type { DoctorOptions, DoctorRow } from './types.js';
 import { DEFAULT_BLOP_PACKAGE_NAME, DEFAULT_INSTALL_SOURCE } from './defaults.js';
 
 function boolIcon(ok: boolean): string {
   return ok ? 'OK' : 'FAIL';
 }
 
+function getRequiredProviderKey(env: Partial<Record<string, string>>): {
+  provider: string;
+  keyName: string;
+  configured: boolean;
+} {
+  const provider = (env.BLOP_LLM_PROVIDER ?? 'google').trim().toLowerCase();
+  if (provider === 'anthropic') {
+    return {
+      provider,
+      keyName: 'ANTHROPIC_API_KEY',
+      configured: Boolean(env.ANTHROPIC_API_KEY),
+    };
+  }
+  if (provider === 'openai') {
+    return {
+      provider,
+      keyName: 'OPENAI_API_KEY',
+      configured: Boolean(env.OPENAI_API_KEY),
+    };
+  }
+  return {
+    provider: 'google',
+    keyName: 'GOOGLE_API_KEY',
+    configured: Boolean(env.GOOGLE_API_KEY),
+  };
+}
+
 export async function runDoctor(options: DoctorOptions = {}): Promise<number> {
-  const rows: Array<{ label: string; ok: boolean; detail?: string }> = [];
+  const rows = await collectDoctorRows(options);
+
+  for (const row of rows) {
+    const detail = row.detail ? ` (${row.detail})` : '';
+    console.log(`${boolIcon(row.ok)} ${row.label}${options.verbose ? detail : ''}`);
+  }
+
+  return rows.every((row) => row.ok) ? 0 : 1;
+}
+
+export async function collectDoctorRows(options: DoctorOptions = {}): Promise<DoctorRow[]> {
+  const rows: DoctorRow[] = [];
 
   const py = runCommand('python3 --version');
   rows.push({
@@ -75,9 +113,15 @@ export async function runDoctor(options: DoctorOptions = {}): Promise<number> {
     });
 
     const env = readEnvFile(envPath);
+    const providerKey = getRequiredProviderKey(env);
     rows.push({
-      label: 'GOOGLE_API_KEY configured',
-      ok: Boolean(env.GOOGLE_API_KEY),
+      label: 'LLM provider configured',
+      ok: Boolean(providerKey.provider),
+      detail: providerKey.provider,
+    });
+    rows.push({
+      label: `${providerKey.keyName} configured`,
+      ok: providerKey.configured,
     });
     rows.push({
       label: 'production env posture',
@@ -86,8 +130,20 @@ export async function runDoctor(options: DoctorOptions = {}): Promise<number> {
         env.BLOP_REQUIRE_ABSOLUTE_PATHS === 'true' &&
         Boolean(env.BLOP_DB_PATH && path.isAbsolute(env.BLOP_DB_PATH)) &&
         Boolean(env.BLOP_RUNS_DIR && path.isAbsolute(env.BLOP_RUNS_DIR)) &&
-        Boolean(env.BLOP_DEBUG_LOG && path.isAbsolute(env.BLOP_DEBUG_LOG)),
-      detail: `BLOP_ENV=${env.BLOP_ENV ?? ''} DB=${env.BLOP_DB_PATH ?? ''} RUNS=${env.BLOP_RUNS_DIR ?? ''} LOG=${env.BLOP_DEBUG_LOG ?? ''}`,
+        Boolean(env.BLOP_DEBUG_LOG && path.isAbsolute(env.BLOP_DEBUG_LOG)) &&
+        env.BLOP_CAPABILITIES_PROFILE === 'production_minimal' &&
+        env.BLOP_ENABLE_COMPAT_TOOLS === 'false' &&
+        env.BLOP_ALLOW_INTERNAL_URLS === 'false' &&
+        env.BLOP_RUN_TIMEOUT_SECS === '1800' &&
+        env.BLOP_STEP_TIMEOUT_SECS === '45' &&
+        env.BLOP_MAX_CONCURRENT_RUNS === '10' &&
+        env.BLOP_ALLOW_SCREENSHOT_LLM === 'false',
+      detail:
+        `BLOP_ENV=${env.BLOP_ENV ?? ''} DB=${env.BLOP_DB_PATH ?? ''} RUNS=${env.BLOP_RUNS_DIR ?? ''} ` +
+        `LOG=${env.BLOP_DEBUG_LOG ?? ''} CAPS=${env.BLOP_CAPABILITIES_PROFILE ?? ''} ` +
+        `COMPAT=${env.BLOP_ENABLE_COMPAT_TOOLS ?? ''} INTERNAL=${env.BLOP_ALLOW_INTERNAL_URLS ?? ''} ` +
+        `RUN_TIMEOUT=${env.BLOP_RUN_TIMEOUT_SECS ?? ''} STEP_TIMEOUT=${env.BLOP_STEP_TIMEOUT_SECS ?? ''} ` +
+        `MAX_CONCURRENT=${env.BLOP_MAX_CONCURRENT_RUNS ?? ''} SCREENSHOT_LLM=${env.BLOP_ALLOW_SCREENSHOT_LLM ?? ''}`,
     });
 
     const importCheck = runCommand(
@@ -115,11 +171,5 @@ export async function runDoctor(options: DoctorOptions = {}): Promise<number> {
       detail: entrypointCheck.ok ? entrypointCheck.stdout.trim() : entrypointCheck.stderr.trim(),
     });
   }
-
-  for (const row of rows) {
-    const detail = row.detail ? ` (${row.detail})` : '';
-    console.log(`${boolIcon(row.ok)} ${row.label}${options.verbose ? detail : ''}`);
-  }
-
-  return rows.every((row) => row.ok) ? 0 : 1;
+  return rows;
 }

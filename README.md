@@ -2,7 +2,7 @@
 
 Install and configure `blop-mcp` across coding tools with a guided CLI.
 
-`blop-wizard` is the setup front door: it creates a managed Python runtime, installs `blop` (PyPI by default), writes a production-shaped release-confidence `.env`, and configures MCP clients around the canonical 4-tool MVP workflow.
+`blop-wizard` is the setup front door: it creates a managed Python runtime, installs `blop` (PyPI by default), writes a production-shaped release-confidence `.env` aligned with `blop-mcp`'s managed stdio baseline, and configures MCP clients around the canonical 4-tool MVP workflow.
 
 ## Quickstart (PyPI-first)
 
@@ -26,7 +26,11 @@ node dist/bin.js
 - Installs `blop` from PyPI (or local source in `--install-source local` mode).
 - Creates or updates runtime `.env` with a managed production posture:
   `BLOP_ENV=production`, `BLOP_REQUIRE_ABSOLUTE_PATHS=true`, absolute runtime-local artifact paths,
-  `BLOP_CAPABILITIES_PROFILE=production_minimal`, and `BLOP_ENABLE_COMPAT_TOOLS=false`.
+  `BLOP_CAPABILITIES_PROFILE=production_minimal`, `BLOP_ENABLE_COMPAT_TOOLS=false`,
+  `BLOP_ALLOW_INTERNAL_URLS=false`, `BLOP_RUN_TIMEOUT_SECS=1800`, `BLOP_STEP_TIMEOUT_SECS=45`,
+  `BLOP_MAX_CONCURRENT_RUNS=10`, and `BLOP_ALLOW_SCREENSHOT_LLM=false`.
+- Supports the `blop-mcp` provider contract:
+  `BLOP_LLM_PROVIDER=google|anthropic|openai` with the matching API key.
 - Adds/updates MCP config (`blop`) for supported vibecoding tools.
 - Runs validation with `doctor`, including runtime posture, venv entrypoint, and canonical release-tool checks.
 
@@ -56,8 +60,14 @@ blop-wizard --install-source local \
   --blop-path /absolute/path/to/blop-mcp \
   --runtime-path ~/.blop-mcp-dev
 
-# Non-interactive mode
+# Non-interactive mode (Google)
 GOOGLE_API_KEY=your_key_here blop-wizard --ci
+
+# Non-interactive mode (Anthropic)
+BLOP_LLM_PROVIDER=anthropic ANTHROPIC_API_KEY=your_key_here blop-wizard --ci
+
+# Non-interactive mode (OpenAI)
+BLOP_LLM_PROVIDER=openai OPENAI_API_KEY=your_key_here blop-wizard --ci
 
 # MCP add/remove only
 blop-wizard mcp add
@@ -73,6 +83,9 @@ blop-wizard mcp remove --global-cursor
 
 # Validate setup
 blop-wizard doctor --verbose
+
+# Diagnose and repair an existing runtime in place
+blop-wizard repair
 ```
 
 ## Path model
@@ -81,6 +94,15 @@ blop-wizard doctor --verbose
 - Runtime-local artifacts: the wizard defaults `BLOP_DB_PATH`, `BLOP_RUNS_DIR`, and `BLOP_DEBUG_LOG` under the runtime path.
 - Project path: where project Cursor MCP config is written (default current working directory, override with `--project-path`).
 - Local source path: used only when `--install-source local` (via `--blop-path`) as the editable install source, separate from the managed runtime.
+
+## Provider contract
+
+- Default provider is `google`.
+- To align with `blop-mcp`, the wizard accepts:
+  - `BLOP_LLM_PROVIDER=google` with `GOOGLE_API_KEY`
+  - `BLOP_LLM_PROVIDER=anthropic` with `ANTHROPIC_API_KEY`
+  - `BLOP_LLM_PROVIDER=openai` with `OPENAI_API_KEY`
+- `doctor` and `repair` validate the provider-specific key instead of assuming Google-only setup.
 
 ## Where config is written
 
@@ -121,8 +143,8 @@ Use these IDs with `--targets`:
 
 1. Run `blop-wizard doctor --verbose`.
 2. If using local mode, confirm `--blop-path` points to a valid `blop-mcp` source repo.
-3. Re-run setup to repair an existing runtime/config in place:
-   `blop-wizard --runtime-path /path/to/runtime`
+3. Repair an existing runtime/config in place:
+   `blop-wizard repair --runtime-path /path/to/runtime`
 4. Restart Cursor/Claude Code after MCP config changes.
 
 ## Release Readiness
