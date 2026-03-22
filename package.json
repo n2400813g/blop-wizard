@@ -21,6 +21,8 @@
     "check:repo-hygiene": "node check-repo-hygiene.mjs",
     "dev": "tsup --watch",
     "prepack": "pnpm build",
+    "prepublishOnly": "pnpm publish:check",
+    "publish:check": "pnpm check:repo-hygiene && pnpm test && pnpm typecheck && NPM_CONFIG_CACHE=/tmp/.npm-blop-wizard npm pack --dry-run --json",
     "start": "node dist/bin.js",
     "try": "pnpm build && node dist/bin.js --help",
     "typecheck": "tsc --noEmit",

@@ -181,8 +181,50 @@ Use these IDs with `--targets`:
 - `pnpm test`
 - `pnpm typecheck`
 - `pnpm build`
-- `pnpm pack --dry-run`
+- `npm pack --dry-run`
 - `blop-wizard doctor --verbose`
+
+## Publish to npm
+
+Recommended release flow:
+
+```bash
+# 1. Make sure the working tree is clean and you are on the release commit
+git status --short
+
+# 2. Bump package.json version if needed
+npm version patch
+
+# 3. Run the full publish gate locally
+pnpm publish:check
+
+# 4. Authenticate to npm
+npm login
+
+# 5. Publish the package
+npm publish
+```
+
+Notes:
+
+- The package name is currently `blop-wizard`.
+- The package is configured for public publish via `publishConfig.access=public`.
+- `prepublishOnly` now runs `pnpm publish:check`, so `npm publish` will fail fast if tests, typecheck, hygiene, or tarball generation fail.
+- `pnpm publish:check` uses `npm pack --dry-run --json` to show the exact tarball contents before release.
+- If you want to inspect the tarball manually without publishing, run:
+  `NPM_CONFIG_CACHE=/tmp/.npm-blop-wizard npm pack --dry-run --json`
+- After publish, verify with:
+  `npm view blop-wizard version`
+
+Suggested first release verification:
+
+```bash
+# install globally from npm
+npm install -g blop-wizard
+
+# verify the CLI starts
+blop-wizard --help
+```
 
 ## Development
 
