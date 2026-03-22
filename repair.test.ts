@@ -89,7 +89,7 @@ describe('repair flow', () => {
     expect(bootstrapBlopMock).toHaveBeenCalledWith(expect.objectContaining({
       ci: true,
       installSource: 'pypi',
-      packageSpec: 'blop',
+      packageSpec: 'blop-mcp',
       runtimePath: '/runtime',
     }));
     expect(addMCPServerToClientsStepMock).toHaveBeenCalledWith(expect.objectContaining({

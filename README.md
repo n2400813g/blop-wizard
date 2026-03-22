@@ -2,7 +2,7 @@
 
 Install and configure `blop-mcp` across coding tools with a guided CLI.
 
-`blop-wizard` is the setup front door: it creates a managed Python runtime, installs `blop` (PyPI by default), writes a production-shaped release-confidence `.env` aligned with `blop-mcp`'s managed stdio baseline, and configures MCP clients around the canonical 4-tool MVP workflow.
+`blop-wizard` is the setup front door: it creates a managed Python runtime, installs `blop-mcp` from PyPI by default, writes a production-shaped release-confidence `.env` aligned with `blop-mcp`'s managed stdio baseline, and configures MCP clients around the canonical 4-tool MVP workflow.
 
 ## Quickstart (PyPI-first)
 
@@ -23,7 +23,7 @@ node dist/bin.js
 
 - Checks Python and `uv`.
 - Creates a runtime environment (default: `~/.blop-mcp`).
-- Installs `blop` from PyPI (or local source in `--install-source local` mode).
+- Installs `blop-mcp` from PyPI (or local source in `--install-source local` mode).
 - Creates or updates runtime `.env` with a managed production posture:
   `BLOP_ENV=production`, `BLOP_REQUIRE_ABSOLUTE_PATHS=true`, absolute runtime-local artifact paths,
   `BLOP_CAPABILITIES_PROFILE=production_minimal`, `BLOP_ENABLE_COMPAT_TOOLS=false`,
@@ -103,6 +103,21 @@ blop-wizard repair
   - `BLOP_LLM_PROVIDER=anthropic` with `ANTHROPIC_API_KEY`
   - `BLOP_LLM_PROVIDER=openai` with `OPENAI_API_KEY`
 - `doctor` and `repair` validate the provider-specific key instead of assuming Google-only setup.
+
+## Version pinning
+
+- The wizard installs `blop-mcp` from PyPI by default.
+- To pin the MCP runtime version, use `--package-version`:
+  `blop-wizard --package-version 0.3.0`
+- This resolves to an install like `blop-mcp==0.3.0`.
+- If you need a non-default package name for testing or an alternate distribution, use:
+  `blop-wizard --package-name blop-mcp --package-version 0.3.0`
+- For the safest wizard/MCP pairing, pin both sides from the same release plan:
+  - install or run the wizard from the intended release branch/tag
+  - pin the Python runtime with `--package-version`
+  - run `blop-wizard doctor --verbose` after install to confirm the final runtime matches expectations
+- If you are developing both repos together, prefer local mode instead of mixed published versions:
+  `blop-wizard --install-source local --blop-path /absolute/path/to/blop-mcp`
 
 ## Where config is written
 

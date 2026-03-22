@@ -82,7 +82,7 @@ export function buildBootstrapPlan(options: BootstrapOptions): {
   const installCommand =
     installSource === 'local'
       ? `uv pip install --python ${quoteShellArg(pythonPath)} -e ${quoteShellArg(path.resolve(localSourcePath ?? runtimePath))}`
-      : `uv pip install --python ${quoteShellArg(pythonPath)} ${quoteShellArg(packageSpec ?? 'blop')}`;
+      : `uv pip install --python ${quoteShellArg(pythonPath)} ${quoteShellArg(packageSpec ?? 'blop-mcp')}`;
   const installCwd = runtimePath;
   const playwrightCommand = skipPlaywright
     ? undefined

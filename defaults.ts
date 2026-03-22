@@ -5,7 +5,7 @@ import { getVenvBlopMcpPath } from './dependencies.js';
 export const SERVER_NAME = 'blop';
 export const MIN_PYTHON_VERSION = '3.11.0';
 export const DEFAULT_INSTALL_SOURCE = 'pypi';
-export const DEFAULT_BLOP_PACKAGE_NAME = 'blop';
+export const DEFAULT_BLOP_PACKAGE_NAME = 'blop-mcp';
 
 export const DEFAULT_ENV_KEYS: Array<keyof EnvConfig> = [
   'GOOGLE_API_KEY',

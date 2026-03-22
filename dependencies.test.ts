@@ -6,14 +6,14 @@ describe('dependencies bootstrap planning', () => {
     const plan = buildBootstrapPlan({
       installSource: 'pypi',
       runtimePath: '/tmp/blop-runtime',
-      packageSpec: 'blop==0.4.0',
+      packageSpec: 'blop-mcp==0.4.0',
     });
 
     expect(plan.venvCwd).toBe('/tmp/blop-runtime');
     expect(plan.installCwd).toBe('/tmp/blop-runtime');
     expect(plan.pythonPath).toBe(getVenvPythonPath('/tmp/blop-runtime'));
     expect(plan.installCommand).toBe(
-      `uv pip install --python "${getVenvPythonPath('/tmp/blop-runtime')}" "blop==0.4.0"`,
+      `uv pip install --python "${getVenvPythonPath('/tmp/blop-runtime')}" "blop-mcp==0.4.0"`,
     );
     expect(plan.playwrightCommand).toContain('install chromium');
   });
