@@ -14,7 +14,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "blop-wizard": "./dist/bin.js"
+    "blop-wizard": "dist/bin.js"
   },
   "scripts": {
     "build": "tsup",
