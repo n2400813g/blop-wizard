@@ -11,7 +11,9 @@ export function writeJsoncValue(
   const resolved = path.resolve(filePath);
   const dir = path.dirname(resolved);
   fs.mkdirSync(dir, { recursive: true });
-  const original = fs.existsSync(resolved) ? fs.readFileSync(resolved, 'utf8') : '{}\n';
+  const original = fs.existsSync(resolved)
+    ? fs.readFileSync(resolved, 'utf8')
+    : '{}\n';
   const edits = jsonc.modify(original, jsonPath, value, {
     formattingOptions: { insertSpaces: true, tabSize: 2 },
   });
@@ -37,9 +39,14 @@ export function readEnvFile(filePath: string): Partial<EnvConfig> {
   return env as Partial<EnvConfig>;
 }
 
-export function upsertEnvFile(filePath: string, updates: Partial<EnvConfig>): void {
+export function upsertEnvFile(
+  filePath: string,
+  updates: Partial<EnvConfig>,
+): void {
   const resolved = path.resolve(filePath);
-  const current = fs.existsSync(resolved) ? fs.readFileSync(resolved, 'utf8') : '';
+  const current = fs.existsSync(resolved)
+    ? fs.readFileSync(resolved, 'utf8')
+    : '';
   const lines = current.length > 0 ? current.split('\n') : [];
   const byKey = new Map<string, number>();
   lines.forEach((line, i) => {
@@ -50,7 +57,7 @@ export function upsertEnvFile(filePath: string, updates: Partial<EnvConfig>): vo
   });
 
   for (const [key, value] of Object.entries(updates)) {
-    if (typeof value === 'undefined') {
+    if (typeof value === 'undefined' || value === '') {
       continue;
     }
     const next = `${key}=${value}`;
@@ -61,6 +68,8 @@ export function upsertEnvFile(filePath: string, updates: Partial<EnvConfig>): vo
     }
   }
 
-  const output = lines.filter((line, index) => !(line === '' && index === lines.length - 1)).join('\n');
+  const output = lines
+    .filter((line, index) => !(line === '' && index === lines.length - 1))
+    .join('\n');
   fs.writeFileSync(resolved, `${output}\n`, 'utf8');
 }

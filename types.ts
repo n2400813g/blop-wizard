@@ -49,6 +49,9 @@ export interface EnvConfig {
   BLOP_STEP_TIMEOUT_SECS?: string;
   BLOP_MAX_CONCURRENT_RUNS?: string;
   BLOP_ALLOW_SCREENSHOT_LLM?: string;
+  BLOP_HOSTED_URL?: string;
+  BLOP_API_TOKEN?: string;
+  BLOP_PROJECT_ID?: string;
 }
 
 export interface MCPClientResult {

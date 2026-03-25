@@ -18,18 +18,26 @@ export const DEFAULT_ENV_KEYS: Array<keyof EnvConfig> = [
   'TEST_PASSWORD',
 ];
 
-function absoluteOrFallback(candidate: string | undefined, fallback: string): string {
+function absoluteOrFallback(
+  candidate: string | undefined,
+  fallback: string,
+): string {
   if (candidate && path.isAbsolute(candidate)) {
     return candidate;
   }
   return fallback;
 }
 
-export function buildDefaultEnv(overrides: Partial<EnvConfig>, runtimePath = process.cwd()): EnvConfig {
+export function buildDefaultEnv(
+  overrides: Partial<EnvConfig>,
+  runtimePath = process.cwd(),
+): EnvConfig {
   const resolvedRuntimePath = path.resolve(runtimePath);
   return {
     GOOGLE_API_KEY: overrides.GOOGLE_API_KEY ?? '',
-    BLOP_LLM_PROVIDER: (overrides.BLOP_LLM_PROVIDER ?? 'google').trim().toLowerCase(),
+    BLOP_LLM_PROVIDER: (overrides.BLOP_LLM_PROVIDER ?? 'google')
+      .trim()
+      .toLowerCase(),
     BLOP_LLM_MODEL: overrides.BLOP_LLM_MODEL,
     ANTHROPIC_API_KEY: overrides.ANTHROPIC_API_KEY,
     OPENAI_API_KEY: overrides.OPENAI_API_KEY,
@@ -38,7 +46,8 @@ export function buildDefaultEnv(overrides: Partial<EnvConfig>, runtimePath = pro
     TEST_USERNAME: overrides.TEST_USERNAME,
     TEST_PASSWORD: overrides.TEST_PASSWORD,
     BLOP_ENV: overrides.BLOP_ENV ?? 'production',
-    BLOP_REQUIRE_ABSOLUTE_PATHS: overrides.BLOP_REQUIRE_ABSOLUTE_PATHS ?? 'true',
+    BLOP_REQUIRE_ABSOLUTE_PATHS:
+      overrides.BLOP_REQUIRE_ABSOLUTE_PATHS ?? 'true',
     BLOP_DB_PATH: absoluteOrFallback(
       overrides.BLOP_DB_PATH,
       path.join(resolvedRuntimePath, 'data', 'runs.db'),
@@ -51,7 +60,8 @@ export function buildDefaultEnv(overrides: Partial<EnvConfig>, runtimePath = pro
       overrides.BLOP_DEBUG_LOG,
       path.join(resolvedRuntimePath, 'logs', 'blop.log'),
     ),
-    BLOP_CAPABILITIES_PROFILE: overrides.BLOP_CAPABILITIES_PROFILE ?? 'production_minimal',
+    BLOP_CAPABILITIES_PROFILE:
+      overrides.BLOP_CAPABILITIES_PROFILE ?? 'production_minimal',
     BLOP_ENABLE_COMPAT_TOOLS: overrides.BLOP_ENABLE_COMPAT_TOOLS ?? 'false',
     BLOP_ALLOW_INTERNAL_URLS: overrides.BLOP_ALLOW_INTERNAL_URLS ?? 'false',
     BLOP_HEADLESS: overrides.BLOP_HEADLESS ?? 'true',
@@ -60,10 +70,16 @@ export function buildDefaultEnv(overrides: Partial<EnvConfig>, runtimePath = pro
     BLOP_STEP_TIMEOUT_SECS: overrides.BLOP_STEP_TIMEOUT_SECS ?? '45',
     BLOP_MAX_CONCURRENT_RUNS: overrides.BLOP_MAX_CONCURRENT_RUNS ?? '10',
     BLOP_ALLOW_SCREENSHOT_LLM: overrides.BLOP_ALLOW_SCREENSHOT_LLM ?? 'false',
+    BLOP_HOSTED_URL: overrides.BLOP_HOSTED_URL,
+    BLOP_API_TOKEN: overrides.BLOP_API_TOKEN,
+    BLOP_PROJECT_ID: overrides.BLOP_PROJECT_ID,
   };
 }
 
-export function buildCursorServerConfig(runtimePath: string, env: EnvConfig): MCPServerConfig {
+export function buildCursorServerConfig(
+  runtimePath: string,
+  env: EnvConfig,
+): MCPServerConfig {
   return {
     command: getVenvBlopMcpPath(runtimePath),
     env,
