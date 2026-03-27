@@ -117,9 +117,7 @@ export async function promptEnvValues(
   );
 
   // Optional: connect to hosted blop dashboard
-  clack.log.message(
-    chalk.dim('─── Hosted blop dashboard (optional) ───'),
-  );
+  clack.log.message(chalk.dim('─── Hosted blop dashboard (optional) ───'));
 
   const hostedUrl = await abortIfCancelled(
     clack.text({

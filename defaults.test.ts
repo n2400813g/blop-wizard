@@ -4,10 +4,13 @@ import { buildDefaultEnv } from './defaults.js';
 describe('default env posture', () => {
   it('uses the canonical MVP release-confidence defaults', () => {
     const runtimePath = '/tmp/blop-runtime';
-    const env = buildDefaultEnv({
-      GOOGLE_API_KEY: 'test-key',
-      APP_BASE_URL: 'https://example.com',
-    }, runtimePath);
+    const env = buildDefaultEnv(
+      {
+        GOOGLE_API_KEY: 'test-key',
+        APP_BASE_URL: 'https://example.com',
+      },
+      runtimePath,
+    );
 
     expect(env.BLOP_ENV).toBe('production');
     expect(env.BLOP_REQUIRE_ABSOLUTE_PATHS).toBe('true');

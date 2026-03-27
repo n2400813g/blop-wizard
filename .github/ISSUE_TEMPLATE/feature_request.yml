@@ -1,0 +1,78 @@
+name: Feature request
+description: Propose an improvement to blop-wizard, especially around install flow, runtime posture, or MCP client support.
+title: '[Feature]: '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for product or maintenance requests related to `blop-wizard`.
+
+        If the request is really about the Python MCP runtime or release-check behavior, note that clearly so maintainers can route it to `blop-mcp` if needed.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Primary area
+      options:
+        - CLI UX
+        - Runtime bootstrap / upgrade
+        - MCP client support
+        - Production defaults / env generation
+        - Documentation / maintainer tooling
+        - Release / packaging workflow
+        - Cross-repo alignment with blop-mcp
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What is hard, missing, or error-prone today?
+      placeholder: Describe the user or maintainer problem first.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should change?
+      placeholder: Describe the desired CLI, docs, workflow, or guardrail change.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alignment
+    attributes:
+      label: Alignment notes
+      description: Explain any required alignment with `blop-mcp`, supported MCP clients, or the canonical release-confidence flow.
+      placeholder: |
+        Example:
+        - must stay aligned with the `blop-mcp` provider contract
+        - requires docs and tests for Cursor + Codex
+        - changes the recommended `validate -> discover -> run_release_check -> triage` guidance
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      placeholder: Include workarounds or other designs you considered.
+
+  - type: textarea
+    id: success
+    attributes:
+      label: What would success look like?
+      placeholder: Describe the expected outcome, acceptance criteria, or maintainer benefits.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked whether this belongs in `blop-wizard` rather than `blop-mcp`.
+          required: true
+        - label: I am not reporting a private security issue.
+          required: true
+        - label: I understand maintainers may ask for docs, tests, or cross-repo alignment updates along with the feature.
+          required: true

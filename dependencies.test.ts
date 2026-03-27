@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildBootstrapPlan, getVenvBlopMcpPath, getVenvPythonPath } from './dependencies.js';
+import {
+  buildBootstrapPlan,
+  getVenvBlopMcpPath,
+  getVenvPythonPath,
+} from './dependencies.js';
 
 describe('dependencies bootstrap planning', () => {
   it('uses PyPI install command by default for pypi mode', () => {
@@ -34,6 +38,8 @@ describe('dependencies bootstrap planning', () => {
   });
 
   it('resolves the venv entrypoint path for direct MCP launches', () => {
-    expect(getVenvBlopMcpPath('/tmp/blop-runtime')).toBe('/tmp/blop-runtime/.venv/bin/blop-mcp');
+    expect(getVenvBlopMcpPath('/tmp/blop-runtime')).toBe(
+      '/tmp/blop-runtime/.venv/bin/blop-mcp',
+    );
   });
 });

@@ -10,7 +10,11 @@ function shellEscape(value: string): string {
   return `'${value.replace(/'/g, `'\\''`)}'`;
 }
 
-function runShell(command: string): { ok: boolean; stdout: string; stderr: string } {
+function runShell(command: string): {
+  ok: boolean;
+  stdout: string;
+  stderr: string;
+} {
   try {
     const output = execSync(command, {
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -65,7 +69,9 @@ export abstract class MCPClient {
       const configPath = await this.getConfigPath();
       const configDir = path.dirname(configPath);
       fs.mkdirSync(configDir, { recursive: true });
-      const original = fs.existsSync(configPath) ? fs.readFileSync(configPath, 'utf8') : '{}\n';
+      const original = fs.existsSync(configPath)
+        ? fs.readFileSync(configPath, 'utf8')
+        : '{}\n';
       const edits = jsonc.modify(
         original,
         [this.getServerPropertyName(), SERVER_NAME],
@@ -124,7 +130,10 @@ export class JsonConfigMCPClient extends MCPClient {
   aliases: string[];
   private readonly configPathResolver: () => string | Promise<string>;
   private readonly serverPropertyName: string;
-  private readonly serverConfigBuilder: (runtimePath: string, env: EnvConfig) => MCPServerConfig;
+  private readonly serverConfigBuilder: (
+    runtimePath: string,
+    env: EnvConfig,
+  ) => MCPServerConfig;
   private readonly supportedCheck?: () => boolean | Promise<boolean>;
 
   constructor(options: JsonConfigClientOptions) {
@@ -176,7 +185,10 @@ export class CliCommandMCPClient extends MCPClient {
   aliases: string[];
   private readonly commandName: string;
   private readonly listCommand: string;
-  private readonly addCommandBuilder: (runtimePath: string, env: EnvConfig) => string;
+  private readonly addCommandBuilder: (
+    runtimePath: string,
+    env: EnvConfig,
+  ) => string;
   private readonly removeCommandBuilder: () => string;
   private readonly supportedCheck?: () => boolean | Promise<boolean>;
 
@@ -188,7 +200,9 @@ export class CliCommandMCPClient extends MCPClient {
     this.commandName = options.commandName;
     this.listCommand = options.listCommand;
     this.addCommandBuilder = options.addCommandBuilder;
-    this.removeCommandBuilder = options.removeCommandBuilder ?? (() => `${this.commandName} mcp remove ${SERVER_NAME}`);
+    this.removeCommandBuilder =
+      options.removeCommandBuilder ??
+      (() => `${this.commandName} mcp remove ${SERVER_NAME}`);
     this.supportedCheck = options.supportedCheck;
   }
 
@@ -213,27 +227,42 @@ export class CliCommandMCPClient extends MCPClient {
     return result.ok && result.stdout.includes(SERVER_NAME);
   }
 
-  async addServer(runtimePath: string, env: EnvConfig): Promise<MCPClientResult> {
+  async addServer(
+    runtimePath: string,
+    env: EnvConfig,
+  ): Promise<MCPClientResult> {
     if (!(await this.isClientSupported())) {
-      return { success: false, error: `${this.commandName} CLI not found in PATH` };
+      return {
+        success: false,
+        error: `${this.commandName} CLI not found in PATH`,
+      };
     }
     const result = runShell(this.addCommandBuilder(runtimePath, env));
     if (result.ok) return { success: true };
     return {
       success: false,
-      error: result.stderr.trim() || result.stdout.trim() || `Failed to add MCP server in ${this.name}`,
+      error:
+        result.stderr.trim() ||
+        result.stdout.trim() ||
+        `Failed to add MCP server in ${this.name}`,
     };
   }
 
   async removeServer(): Promise<MCPClientResult> {
     if (!(await this.isClientSupported())) {
-      return { success: false, error: `${this.commandName} CLI not found in PATH` };
+      return {
+        success: false,
+        error: `${this.commandName} CLI not found in PATH`,
+      };
     }
     const result = runShell(this.removeCommandBuilder());
     if (result.ok) return { success: true };
     return {
       success: false,
-      error: result.stderr.trim() || result.stdout.trim() || `Failed to remove MCP server from ${this.name}`,
+      error:
+        result.stderr.trim() ||
+        result.stdout.trim() ||
+        `Failed to remove MCP server from ${this.name}`,
     };
   }
 }

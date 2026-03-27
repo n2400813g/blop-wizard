@@ -1,4 +1,7 @@
-export { CursorMCPClient, CursorProjectMCPClient } from './add-mcp-server-to-clients-client-cursor.js';
+export {
+  CursorMCPClient,
+  CursorProjectMCPClient,
+} from './add-mcp-server-to-clients-client-cursor.js';
 export { ClaudeCodeMCPClient } from './add-mcp-server-to-clients-client-claude-code.js';
 export {
   CodexMCPClient,

@@ -1,7 +1,7 @@
 {
   "name": "blop-wizard",
   "version": "0.1.2",
-  "description": "CLI wizard to install and configure blop release-confidence MCP",
+  "description": "CLI installer and runtime manager for the blop and blop-mcp release-confidence stack",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/n2400813g/blop-wizard.git"
@@ -18,17 +18,20 @@
   },
   "scripts": {
     "build": "tsup",
+    "check": "pnpm check:repo-hygiene && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
     "check:repo-hygiene": "node check-repo-hygiene.mjs",
     "dev": "tsup --watch",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prepack": "pnpm build",
     "prepublishOnly": "pnpm publish:check",
-    "publish:check": "pnpm check:repo-hygiene && pnpm test && pnpm typecheck && NPM_CONFIG_CACHE=/tmp/.npm-blop-wizard npm pack --dry-run --json",
+    "publish:check": "pnpm check && NPM_CONFIG_CACHE=/tmp/.npm-blop-wizard npm pack --dry-run --json",
     "start": "node dist/bin.js",
     "try": "pnpm build && node dist/bin.js --help",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:integration": "vitest run add-mcp-server-to-clients-flow.integration.test.ts add-mcp-server-to-clients-matrix.integration.test.ts",
-    "lint": "pnpm check:repo-hygiene && tsc --noEmit"
+    "lint": "eslint ."
   },
   "files": [
     "dist"
@@ -39,7 +42,9 @@
     "wizard",
     "cli",
     "cursor",
-    "claude-code"
+    "claude-code",
+    "release-confidence",
+    "release-testing"
   ],
   "author": "Blop",
   "license": "MIT",
@@ -54,10 +59,15 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^24.5.2",
     "@types/yargs": "^17.0.33",
+    "eslint": "^10.1.0",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
+    "typescript-eslint": "^8.57.1",
     "vitest": "^3.2.4"
   },
   "engines": {

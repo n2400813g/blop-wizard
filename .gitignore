@@ -1,18 +1,41 @@
+# Dependencies
 node_modules/
-dist/
 .pnpm-store/
 .pnpm-home/
+
+# Build, package, and cache output
+dist/
 coverage/
 .tmp-vitest-cache/
+*.tgz
+.eslintcache
 
-# OS/editor noise
-.DS_Store
-*.swp
-*.swo
+# Environment and secrets
+.env
+.env.*
+!.env.example
 
 # Runtime outputs (must never be committed)
 .blop/
 *.log
 
+# Generated project-local MCP config
+.cursor/mcp.json
+.cursor/settings.local.json
+
 # Generated test fixtures (integration runs)
 .tmp-test-fixtures/
+
+# Alternate package manager lockfiles
+package-lock.json
+yarn.lock
+bun.lock
+bun.lockb
+
+# IDE / OS noise
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

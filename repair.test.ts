@@ -62,19 +62,29 @@ describe('repair flow', () => {
   });
 
   it('skips repair work when doctor finds no issues', async () => {
-    collectDoctorRowsMock.mockResolvedValue([{ label: 'python3 available', ok: true }]);
+    collectDoctorRowsMock.mockResolvedValue([
+      { label: 'python3 available', ok: true },
+    ]);
 
     const code = await runRepair({ ci: true });
 
     expect(code).toBe(0);
     expect(bootstrapBlopMock).not.toHaveBeenCalled();
     expect(addMCPServerToClientsStepMock).not.toHaveBeenCalled();
-    expect(outroMock).toHaveBeenCalledWith(expect.stringContaining('No repair needed'));
+    expect(outroMock).toHaveBeenCalledWith(
+      expect.stringContaining('No repair needed'),
+    );
   });
 
   it('repairs the runtime and reconfigures clients when diagnosis fails', async () => {
     collectDoctorRowsMock
-      .mockResolvedValueOnce([{ label: 'blop server import', ok: false, detail: 'ModuleNotFoundError' }])
+      .mockResolvedValueOnce([
+        {
+          label: 'blop server import',
+          ok: false,
+          detail: 'ModuleNotFoundError',
+        },
+      ])
       .mockResolvedValueOnce([{ label: 'blop server import', ok: true }]);
     bootstrapBlopMock.mockResolvedValue({
       env: {
@@ -86,26 +96,38 @@ describe('repair flow', () => {
     const code = await runRepair({ ci: true, targets: ['cursor'] });
 
     expect(code).toBe(0);
-    expect(bootstrapBlopMock).toHaveBeenCalledWith(expect.objectContaining({
-      ci: true,
-      installSource: 'pypi',
-      packageSpec: 'blop-mcp',
-      runtimePath: '/runtime',
-    }));
-    expect(addMCPServerToClientsStepMock).toHaveBeenCalledWith(expect.objectContaining({
-      ci: true,
-      projectPath: '/project',
-      runtimePath: '/runtime',
-      targets: ['cursor'],
-    }));
+    expect(bootstrapBlopMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ci: true,
+        installSource: 'pypi',
+        packageSpec: 'blop-mcp',
+        runtimePath: '/runtime',
+      }),
+    );
+    expect(addMCPServerToClientsStepMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ci: true,
+        projectPath: '/project',
+        runtimePath: '/runtime',
+        targets: ['cursor'],
+      }),
+    );
     expect(printRestartHintMock).toHaveBeenCalled();
     expect(outroMock).toHaveBeenCalledWith(expect.stringContaining('repaired'));
   });
 
   it('returns a failing exit code when issues remain after repair', async () => {
     collectDoctorRowsMock
-      .mockResolvedValueOnce([{ label: 'blop-mcp entrypoint runnable', ok: false }])
-      .mockResolvedValueOnce([{ label: 'blop-mcp entrypoint runnable', ok: false, detail: 'permission denied' }]);
+      .mockResolvedValueOnce([
+        { label: 'blop-mcp entrypoint runnable', ok: false },
+      ])
+      .mockResolvedValueOnce([
+        {
+          label: 'blop-mcp entrypoint runnable',
+          ok: false,
+          detail: 'permission denied',
+        },
+      ]);
     bootstrapBlopMock.mockResolvedValue({
       env: {
         GOOGLE_API_KEY: 'test-key',
@@ -116,6 +138,8 @@ describe('repair flow', () => {
     const code = await runRepair({ ci: true });
 
     expect(code).toBe(1);
-    expect(outroMock).toHaveBeenCalledWith(expect.stringContaining('still need attention'));
+    expect(outroMock).toHaveBeenCalledWith(
+      expect.stringContaining('still need attention'),
+    );
   });
 });

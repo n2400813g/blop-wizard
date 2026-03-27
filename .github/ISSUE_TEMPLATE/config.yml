@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security policy
+    about: Please report vulnerabilities privately and follow the repository security policy.
+    url: https://github.com/n2400813g/blop-wizard/blob/main/SECURITY.md
+  - name: Contribution guide
+    about: Read maintainer expectations, release checks, and repository hygiene guidance before filing work.
+    url: https://github.com/n2400813g/blop-wizard/blob/main/CONTRIBUTING.md
+  - name: Project overview
+    about: Review the product and setup documentation to confirm the request belongs in blop-wizard.
+    url: https://github.com/n2400813g/blop-wizard/blob/main/README.md

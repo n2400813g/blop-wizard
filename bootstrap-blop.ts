@@ -35,7 +35,9 @@ function ensureEnvFile(runtimePath: string, localSourcePath?: string): string {
     return envPath;
   }
 
-  const envExamplePath = localSourcePath ? path.join(localSourcePath, '.env.example') : undefined;
+  const envExamplePath = localSourcePath
+    ? path.join(localSourcePath, '.env.example')
+    : undefined;
   if (envExamplePath && fs.existsSync(envExamplePath)) {
     fs.copyFileSync(envExamplePath, envPath);
     return envPath;
@@ -54,7 +56,8 @@ export async function bootstrapBlop(
   if (!ci) {
     const shouldBootstrap = await abortIfCancelled(
       clack.confirm({
-        message: 'Run dependency bootstrap (uv venv, install blop, Playwright)?',
+        message:
+          'Run dependency bootstrap (uv venv, install blop, Playwright)?',
         initialValue: true,
       }),
     );
@@ -71,10 +74,13 @@ export async function bootstrapBlop(
   let answers: Partial<EnvConfig>;
   if (ci) {
     answers = {
-      BLOP_LLM_PROVIDER: process.env.BLOP_LLM_PROVIDER ?? existing.BLOP_LLM_PROVIDER ?? 'google',
+      BLOP_LLM_PROVIDER:
+        process.env.BLOP_LLM_PROVIDER ?? existing.BLOP_LLM_PROVIDER ?? 'google',
       BLOP_LLM_MODEL: process.env.BLOP_LLM_MODEL ?? existing.BLOP_LLM_MODEL,
-      GOOGLE_API_KEY: process.env.GOOGLE_API_KEY ?? existing.GOOGLE_API_KEY ?? '',
-      ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY ?? existing.ANTHROPIC_API_KEY,
+      GOOGLE_API_KEY:
+        process.env.GOOGLE_API_KEY ?? existing.GOOGLE_API_KEY ?? '',
+      ANTHROPIC_API_KEY:
+        process.env.ANTHROPIC_API_KEY ?? existing.ANTHROPIC_API_KEY,
       OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? existing.OPENAI_API_KEY,
       APP_BASE_URL: process.env.APP_BASE_URL ?? existing.APP_BASE_URL,
       LOGIN_URL: process.env.LOGIN_URL ?? existing.LOGIN_URL,
@@ -82,7 +88,9 @@ export async function bootstrapBlop(
       TEST_PASSWORD: process.env.TEST_PASSWORD ?? existing.TEST_PASSWORD,
     };
     if (!hasRequiredProviderKey(answers)) {
-      throw new Error(`${requiredProviderKeyName(answers)} is required in CI mode.`);
+      throw new Error(
+        `${requiredProviderKeyName(answers)} is required in CI mode.`,
+      );
     }
   } else {
     answers = await promptEnvValues(existing);

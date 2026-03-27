@@ -8,7 +8,10 @@ import {
   removeMCPServerFromClientsStep,
 } from './add-mcp-server-to-clients.js';
 import type { MCPClient } from './add-mcp-server-to-clients-mcp-client.js';
-import { CursorMCPClient, CursorProjectMCPClient } from './add-mcp-server-to-clients-client-cursor.js';
+import {
+  CursorMCPClient,
+  CursorProjectMCPClient,
+} from './add-mcp-server-to-clients-client-cursor.js';
 import {
   createClineMCPClient,
   createContinueMCPClient,
@@ -23,6 +26,16 @@ import {
 } from './add-mcp-server-to-clients-client-vibe-tools.js';
 
 const tempDirsToClean = new Set<string>();
+
+interface ParsedServerEntry {
+  command?: string;
+  args?: unknown;
+  env?: Record<string, string>;
+}
+
+interface ParsedMcpConfig {
+  mcpServers: Record<string, ParsedServerEntry | undefined>;
+}
 
 function createTempDir(prefix: string): string {
   const sandboxTmpRoot = path.join(process.cwd(), '.tmp-test-fixtures');
@@ -43,10 +56,13 @@ describe('mcp matrix add/remove flow', () => {
   it('supports priority JSON vibecoding clients with target filtering', async () => {
     const runtimePath = createTempDir('blop-mcp-matrix-runtime-');
     const configRoot = createTempDir('blop-mcp-matrix-config-');
-    const env = buildDefaultEnv({
-      GOOGLE_API_KEY: 'matrix-test-key',
-      APP_BASE_URL: 'https://example.com',
-    }, runtimePath);
+    const env = buildDefaultEnv(
+      {
+        GOOGLE_API_KEY: 'matrix-test-key',
+        APP_BASE_URL: 'https://example.com',
+      },
+      runtimePath,
+    );
 
     const cases = [
       {
@@ -55,7 +71,11 @@ describe('mcp matrix add/remove flow', () => {
         configPath: path.join(configRoot, 'cursor-project', 'mcp.json'),
         client: new CursorProjectMCPClient({
           projectPath: configRoot,
-          configPathOverride: path.join(configRoot, 'cursor-project', 'mcp.json'),
+          configPathOverride: path.join(
+            configRoot,
+            'cursor-project',
+            'mcp.json',
+          ),
           supportedCheck: () => true,
         }),
       },
@@ -66,7 +86,8 @@ describe('mcp matrix add/remove flow', () => {
         client: new CursorMCPClient({
           id: 'cursor',
           name: 'Cursor',
-          configPathResolver: () => path.join(configRoot, 'cursor-global', 'mcp.json'),
+          configPathResolver: () =>
+            path.join(configRoot, 'cursor-global', 'mcp.json'),
           supportedCheck: () => true,
         }),
       },
@@ -162,7 +183,9 @@ describe('mcp matrix add/remove flow', () => {
       },
     ] as const;
 
-    const clientRegistryOverride = cases.map((clientCase) => clientCase.client) as MCPClient[];
+    const clientRegistryOverride = cases.map(
+      (clientCase) => clientCase.client,
+    ) as MCPClient[];
     for (const clientCase of cases) {
       const added = await addMCPServerToClientsStep({
         runtimePath,
@@ -176,15 +199,18 @@ describe('mcp matrix add/remove flow', () => {
       expect(added).toContain(clientCase.name);
 
       const rawAfterAdd = fs.readFileSync(clientCase.configPath, 'utf8');
-      const parsedAfterAdd = jsonc.parse(rawAfterAdd) as Record<string, any>;
-      expect(parsedAfterAdd.mcpServers[SERVER_NAME]).toBeTruthy();
-      expect(parsedAfterAdd.mcpServers[SERVER_NAME].command).toBe(
+      const parsedAfterAdd = jsonc.parse(rawAfterAdd) as ParsedMcpConfig;
+      const addedServer = parsedAfterAdd.mcpServers[SERVER_NAME];
+      expect(addedServer).toBeTruthy();
+      expect(addedServer?.command).toBe(
         path.join(path.resolve(runtimePath), '.venv', 'bin', 'blop-mcp'),
       );
-      expect(parsedAfterAdd.mcpServers[SERVER_NAME].args).toBeUndefined();
-      expect(parsedAfterAdd.mcpServers[SERVER_NAME].env.GOOGLE_API_KEY).toBe('matrix-test-key');
-      expect(parsedAfterAdd.mcpServers[SERVER_NAME].env.BLOP_ENV).toBe('production');
-      expect(parsedAfterAdd.mcpServers[SERVER_NAME].env.BLOP_RUNS_DIR).toBe(path.join(path.resolve(runtimePath), 'runs'));
+      expect(addedServer?.args).toBeUndefined();
+      expect(addedServer?.env?.GOOGLE_API_KEY).toBe('matrix-test-key');
+      expect(addedServer?.env?.BLOP_ENV).toBe('production');
+      expect(addedServer?.env?.BLOP_RUNS_DIR).toBe(
+        path.join(path.resolve(runtimePath), 'runs'),
+      );
 
       const addedAgain = await addMCPServerToClientsStep({
         runtimePath,
@@ -197,7 +223,9 @@ describe('mcp matrix add/remove flow', () => {
       });
       expect(addedAgain).toContain(clientCase.name);
       const rawAfterSecondAdd = fs.readFileSync(clientCase.configPath, 'utf8');
-      const parsedAfterSecondAdd = jsonc.parse(rawAfterSecondAdd) as Record<string, any>;
+      const parsedAfterSecondAdd = jsonc.parse(
+        rawAfterSecondAdd,
+      ) as ParsedMcpConfig;
       expect(parsedAfterSecondAdd.mcpServers[SERVER_NAME]).toBeTruthy();
 
       const removed = await removeMCPServerFromClientsStep({
@@ -210,7 +238,7 @@ describe('mcp matrix add/remove flow', () => {
       expect(removed).toContain(clientCase.name);
 
       const rawAfterRemove = fs.readFileSync(clientCase.configPath, 'utf8');
-      const parsedAfterRemove = jsonc.parse(rawAfterRemove) as Record<string, any>;
+      const parsedAfterRemove = jsonc.parse(rawAfterRemove) as ParsedMcpConfig;
       expect(parsedAfterRemove.mcpServers?.[SERVER_NAME]).toBeUndefined();
     }
   });

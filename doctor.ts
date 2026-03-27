@@ -1,10 +1,17 @@
 import fs from 'fs';
 import path from 'path';
-import { getVenvBlopMcpPath, getVenvPythonPath, runCommand } from './dependencies.js';
+import {
+  getVenvBlopMcpPath,
+  getVenvPythonPath,
+  runCommand,
+} from './dependencies.js';
 import { resolveLocalSourcePath, resolveRuntimePath } from './paths.js';
 import { readEnvFile } from './config-write.js';
 import type { DoctorOptions, DoctorRow } from './types.js';
-import { DEFAULT_BLOP_PACKAGE_NAME, DEFAULT_INSTALL_SOURCE } from './defaults.js';
+import {
+  DEFAULT_BLOP_PACKAGE_NAME,
+  DEFAULT_INSTALL_SOURCE,
+} from './defaults.js';
 
 function boolIcon(ok: boolean): string {
   return ok ? 'OK' : 'FAIL';
@@ -42,13 +49,17 @@ export async function runDoctor(options: DoctorOptions = {}): Promise<number> {
 
   for (const row of rows) {
     const detail = row.detail ? ` (${row.detail})` : '';
-    console.log(`${boolIcon(row.ok)} ${row.label}${options.verbose ? detail : ''}`);
+    console.log(
+      `${boolIcon(row.ok)} ${row.label}${options.verbose ? detail : ''}`,
+    );
   }
 
   return rows.every((row) => row.ok) ? 0 : 1;
 }
 
-export async function collectDoctorRows(options: DoctorOptions = {}): Promise<DoctorRow[]> {
+export async function collectDoctorRows(
+  options: DoctorOptions = {},
+): Promise<DoctorRow[]> {
   const rows: DoctorRow[] = [];
 
   const py = runCommand('python3 --version');
@@ -66,23 +77,31 @@ export async function collectDoctorRows(options: DoctorOptions = {}): Promise<Do
   });
 
   let runtimePath = '';
-  let localSourcePath = '';
   try {
     const installSource = options.installSource ?? DEFAULT_INSTALL_SOURCE;
     const packageSpec = options.packageVersion
       ? `${options.packageName ?? DEFAULT_BLOP_PACKAGE_NAME}==${options.packageVersion}`
       : (options.packageName ?? DEFAULT_BLOP_PACKAGE_NAME);
-    localSourcePath = installSource === 'local' ? resolveLocalSourcePath(options.blopPath) : '';
+    const localSourcePath =
+      installSource === 'local' ? resolveLocalSourcePath(options.blopPath) : '';
     runtimePath = resolveRuntimePath({
       installSource,
       runtimePath: options.runtimePath,
       localSourcePath,
     });
-    rows.push({ label: 'runtime path resolved', ok: true, detail: runtimePath });
+    rows.push({
+      label: 'runtime path resolved',
+      ok: true,
+      detail: runtimePath,
+    });
     rows.push({ label: 'install source', ok: true, detail: installSource });
     rows.push({ label: 'package spec', ok: true, detail: packageSpec });
     if (localSourcePath) {
-      rows.push({ label: 'local source path resolved', ok: true, detail: localSourcePath });
+      rows.push({
+        label: 'local source path resolved',
+        ok: true,
+        detail: localSourcePath,
+      });
     }
   } catch (error) {
     rows.push({
@@ -152,7 +171,9 @@ export async function collectDoctorRows(options: DoctorOptions = {}): Promise<Do
     rows.push({
       label: 'blop server import',
       ok: importCheck.ok && importCheck.stdout.includes('ok'),
-      detail: importCheck.ok ? importCheck.stdout.trim() : importCheck.stderr.trim(),
+      detail: importCheck.ok
+        ? importCheck.stdout.trim()
+        : importCheck.stderr.trim(),
     });
 
     const canonicalCheck = runCommand(
@@ -161,14 +182,18 @@ export async function collectDoctorRows(options: DoctorOptions = {}): Promise<Do
     rows.push({
       label: 'canonical MVP tools import',
       ok: canonicalCheck.ok && canonicalCheck.stdout.includes('ok'),
-      detail: canonicalCheck.ok ? canonicalCheck.stdout.trim() : canonicalCheck.stderr.trim(),
+      detail: canonicalCheck.ok
+        ? canonicalCheck.stdout.trim()
+        : canonicalCheck.stderr.trim(),
     });
 
     const entrypointCheck = runCommand(`${JSON.stringify(venvBlopMcp)} --help`);
     rows.push({
       label: 'blop-mcp entrypoint runnable',
       ok: entrypointCheck.ok,
-      detail: entrypointCheck.ok ? entrypointCheck.stdout.trim() : entrypointCheck.stderr.trim(),
+      detail: entrypointCheck.ok
+        ? entrypointCheck.stdout.trim()
+        : entrypointCheck.stderr.trim(),
     });
   }
   return rows;

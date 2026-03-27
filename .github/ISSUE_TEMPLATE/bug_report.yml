@@ -1,0 +1,133 @@
+name: Bug report
+description: Report a defect in the blop-wizard CLI, runtime bootstrap flow, or MCP client configuration behavior.
+title: '[Bug]: '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please keep secrets out of the issue body.
+
+        If this is a security-sensitive issue, stop here and follow `SECURITY.md` instead of filing a public bug.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      description: Which part of the stack appears to be broken?
+      options:
+        - CLI install/bootstrap
+        - Runtime env generation
+        - MCP client configuration
+        - doctor / repair / upgrade flow
+        - Packaging / publish gate
+        - Documentation
+        - Not sure yet
+    validations:
+      required: true
+
+  - type: input
+    id: wizard-version
+    attributes:
+      label: blop-wizard version
+      description: 'Example: `0.1.2` or `main` if running from source.'
+      placeholder: 0.1.2
+    validations:
+      required: true
+
+  - type: input
+    id: mcp-version
+    attributes:
+      label: blop-mcp version or source revision
+      description: If known, include the pinned package version or local checkout revision.
+      placeholder: 0.3.0
+
+  - type: dropdown
+    id: install-source
+    attributes:
+      label: Install source
+      options:
+        - PyPI / npm release flow
+        - Local source mode
+        - Running directly from this repo
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command or workflow
+      description: Paste the command or sequence that triggered the bug.
+      placeholder: |
+        blop-wizard upgrade --package-version 0.3.0
+        blop-wizard doctor --verbose
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: clients
+    attributes:
+      label: Targeted MCP clients
+      description: List the clients involved, such as Cursor, Claude Code, VS Code, Windsurf, Codex, or JetBrains.
+      placeholder: Cursor project config and Codex CLI
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, Node version, pnpm version, and anything else relevant.
+      placeholder: |
+        macOS 15
+        node v20.x
+        pnpm 10.x
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened?
+      placeholder: Tell us the actual behavior, error, or unexpected side effect.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: Tell us the intended behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Run ...
+        2. Answer prompts ...
+        3. Open ...
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics or logs
+      description: Include relevant output from `blop-wizard doctor --verbose`, `pnpm publish:check`, or stack traces. Redact secrets first.
+      render: text
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I redacted API keys, tokens, passwords, and local file paths that should not be public.
+          required: true
+        - label: I checked `README.md`, `CONTRIBUTING.md`, and `SECURITY.md` as applicable.
+          required: true
+        - label: I understand this issue may be moved if the root cause belongs in `blop-mcp` instead of `blop-wizard`.
+          required: true

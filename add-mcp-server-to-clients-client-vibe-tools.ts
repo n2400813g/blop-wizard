@@ -22,14 +22,16 @@ function makeJsonClient(options: {
   override?: ConfigOverride;
   serverPropertyName?: string;
 }): JsonConfigMCPClient {
-  const resolvedConfigPath = () => options.override?.configPath ?? options.defaultConfigPath;
+  const resolvedConfigPath = () =>
+    options.override?.configPath ?? options.defaultConfigPath;
   return new JsonConfigMCPClient({
     id: options.id,
     name: options.name,
     aliases: options.aliases,
     configPathResolver: resolvedConfigPath,
     serverPropertyName: options.serverPropertyName ?? 'mcpServers',
-    serverConfigBuilder: (runtimePath, env) => buildCursorServerConfig(runtimePath, env),
+    serverConfigBuilder: (runtimePath, env) =>
+      buildCursorServerConfig(runtimePath, env),
     supportedCheck:
       typeof options.override?.forceSupported === 'boolean'
         ? () => options.override?.forceSupported ?? false
@@ -37,7 +39,9 @@ function makeJsonClient(options: {
   });
 }
 
-export function createVSCodeMCPClient(override?: ConfigOverride): JsonConfigMCPClient {
+export function createVSCodeMCPClient(
+  override?: ConfigOverride,
+): JsonConfigMCPClient {
   return makeJsonClient({
     id: 'vscode',
     name: 'VS Code',
@@ -47,16 +51,25 @@ export function createVSCodeMCPClient(override?: ConfigOverride): JsonConfigMCPC
   });
 }
 
-export function createWindsurfMCPClient(override?: ConfigOverride): JsonConfigMCPClient {
+export function createWindsurfMCPClient(
+  override?: ConfigOverride,
+): JsonConfigMCPClient {
   return makeJsonClient({
     id: 'windsurf',
     name: 'Windsurf',
-    defaultConfigPath: path.join(os.homedir(), '.codeium', 'windsurf', 'mcp_config.json'),
+    defaultConfigPath: path.join(
+      os.homedir(),
+      '.codeium',
+      'windsurf',
+      'mcp_config.json',
+    ),
     override,
   });
 }
 
-export function createClineMCPClient(override?: ConfigOverride): JsonConfigMCPClient {
+export function createClineMCPClient(
+  override?: ConfigOverride,
+): JsonConfigMCPClient {
   return makeJsonClient({
     id: 'cline',
     name: 'Cline',
@@ -65,7 +78,9 @@ export function createClineMCPClient(override?: ConfigOverride): JsonConfigMCPCl
   });
 }
 
-export function createContinueMCPClient(override?: ConfigOverride): JsonConfigMCPClient {
+export function createContinueMCPClient(
+  override?: ConfigOverride,
+): JsonConfigMCPClient {
   return makeJsonClient({
     id: 'continue',
     name: 'Continue',
@@ -74,7 +89,9 @@ export function createContinueMCPClient(override?: ConfigOverride): JsonConfigMC
   });
 }
 
-export function createRooCodeMCPClient(override?: ConfigOverride): JsonConfigMCPClient {
+export function createRooCodeMCPClient(
+  override?: ConfigOverride,
+): JsonConfigMCPClient {
   return makeJsonClient({
     id: 'roo-code',
     name: 'Roo Code',
@@ -84,7 +101,9 @@ export function createRooCodeMCPClient(override?: ConfigOverride): JsonConfigMCP
   });
 }
 
-export function createGeminiCliMCPClient(override?: ConfigOverride): JsonConfigMCPClient {
+export function createGeminiCliMCPClient(
+  override?: ConfigOverride,
+): JsonConfigMCPClient {
   return makeJsonClient({
     id: 'gemini-cli',
     name: 'Gemini CLI',
@@ -94,7 +113,9 @@ export function createGeminiCliMCPClient(override?: ConfigOverride): JsonConfigM
   });
 }
 
-export function createKiloCodeMCPClient(override?: ConfigOverride): JsonConfigMCPClient {
+export function createKiloCodeMCPClient(
+  override?: ConfigOverride,
+): JsonConfigMCPClient {
   return makeJsonClient({
     id: 'kilo-code',
     name: 'Kilo Code',
@@ -104,7 +125,9 @@ export function createKiloCodeMCPClient(override?: ConfigOverride): JsonConfigMC
   });
 }
 
-export function createOpenCodeMCPClient(override?: ConfigOverride): JsonConfigMCPClient {
+export function createOpenCodeMCPClient(
+  override?: ConfigOverride,
+): JsonConfigMCPClient {
   return makeJsonClient({
     id: 'opencode',
     name: 'OpenCode',
@@ -114,16 +137,25 @@ export function createOpenCodeMCPClient(override?: ConfigOverride): JsonConfigMC
   });
 }
 
-export function createZedMCPClient(override?: ConfigOverride): JsonConfigMCPClient {
+export function createZedMCPClient(
+  override?: ConfigOverride,
+): JsonConfigMCPClient {
   return makeJsonClient({
     id: 'zed',
     name: 'Zed',
-    defaultConfigPath: path.join(os.homedir(), '.config', 'zed', 'settings.json'),
+    defaultConfigPath: path.join(
+      os.homedir(),
+      '.config',
+      'zed',
+      'settings.json',
+    ),
     override,
   });
 }
 
-export function createJetBrainsMCPClient(override?: ConfigOverride): JsonConfigMCPClient {
+export function createJetBrainsMCPClient(
+  override?: ConfigOverride,
+): JsonConfigMCPClient {
   return makeJsonClient({
     id: 'jetbrains',
     name: 'JetBrains',

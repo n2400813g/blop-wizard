@@ -4,6 +4,14 @@ Install and configure `blop-mcp` across coding tools with a guided CLI.
 
 `blop-wizard` is the setup front door: it creates a managed Python runtime, installs `blop-mcp` from PyPI by default, writes a production-shaped release-confidence `.env` aligned with `blop-mcp`'s managed stdio baseline, and configures MCP clients around the canonical 4-tool MVP workflow.
 
+## Position in the blop stack
+
+- `blop` is the release-confidence product and control plane.
+- `blop-mcp` is the Python MCP server that implements the release workflow and runtime contract.
+- `blop-wizard` is the installer and client-configuration CLI for that stack.
+
+This repo should stay functionally aligned with `blop-mcp` defaults, especially around the production env template, supported providers, supported MCP clients, and the canonical MVP flow.
+
 ## Quickstart (PyPI-first)
 
 ```bash
@@ -50,7 +58,7 @@ Use the installed MCP server with this sequence:
 blop-wizard
 
 # Pin package version from PyPI
-blop-wizard --package-version 0.4.0
+blop-wizard --package-version 0.3.0
 
 # Local source mode (editable install)
 blop-wizard --install-source local --blop-path /absolute/path/to/blop-mcp
@@ -177,9 +185,7 @@ Use these IDs with `--targets`:
 
 ## Release Readiness
 
-- `pnpm check:repo-hygiene`
-- `pnpm test`
-- `pnpm typecheck`
+- `pnpm check`
 - `pnpm build`
 - `npm pack --dry-run`
 - `blop-wizard doctor --verbose`
@@ -209,7 +215,7 @@ Notes:
 
 - The package name is currently `blop-wizard`.
 - The package is configured for public publish via `publishConfig.access=public`.
-- `prepublishOnly` now runs `pnpm publish:check`, so `npm publish` will fail fast if tests, typecheck, hygiene, or tarball generation fail.
+- `prepublishOnly` now runs `pnpm publish:check`, so `npm publish` will fail fast if formatting, linting, tests, typecheck, hygiene, or tarball generation fail.
 - `pnpm publish:check` uses `npm pack --dry-run --json` to show the exact tarball contents before release.
 - If you want to inspect the tarball manually without publishing, run:
   `NPM_CONFIG_CACHE=/tmp/.npm-blop-wizard npm pack --dry-run --json`
@@ -229,17 +235,31 @@ blop-wizard --help
 ## Development
 
 ```bash
-pnpm check:repo-hygiene
+pnpm install
+pnpm format
+pnpm format:check
+pnpm lint
 pnpm typecheck
 pnpm test
 pnpm test:integration
+pnpm check
 pnpm build
 ```
 
 `test:integration` uses temporary fixtures and never touches real user MCP configs.
 
+## Open source
+
+- License: [MIT](LICENSE)
+- Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Security policy: [SECURITY.md](SECURITY.md)
+- CI release gate: [`.github/workflows/package-verify.yml`](.github/workflows/package-verify.yml)
+- Canonical maintainer verification: `pnpm test:integration` and `pnpm publish:check`
+
 ## Repository hygiene
 
 - This repository tracks source and intentional project files only.
-- Generated runtime data (`.blop/`), temporary test fixtures (`.tmp-test-fixtures/`), coverage, and logs are intentionally ignored.
-- Run `pnpm check:repo-hygiene` before pushing to ensure no generated artifacts were accidentally tracked.
+- Generated runtime data (`.blop/`), build output (`dist/`), temporary test fixtures (`.tmp-test-fixtures/`), coverage, logs, package tarballs, secrets, and project-local MCP config are intentionally ignored.
+- `dist/` is generated at pack and publish time via `prepack`; it should ship in the npm tarball, not live in git.
+- `pnpm-lock.yaml` is the canonical lockfile for this repo; alternate lockfiles are treated as hygiene violations.
+- Run `pnpm check` before pushing to ensure formatting, linting, tests, typecheck, and repo hygiene all pass together.

@@ -60,7 +60,9 @@ vi.mock('./doctor.js', () => ({
 
 vi.mock('fs', () => ({
   default: {
-    existsSync: vi.fn((target: string) => target === '/runtime' || target === '/runtime/.venv'),
+    existsSync: vi.fn(
+      (target: string) => target === '/runtime' || target === '/runtime/.venv',
+    ),
   },
 }));
 
@@ -72,17 +74,23 @@ describe('upgrade flow', () => {
   });
 
   it('upgrades in place by default in ci mode', async () => {
-    collectDoctorRowsMock.mockResolvedValue([{ label: 'python3 available', ok: true }]);
-    bootstrapBlopMock.mockResolvedValue({ env: { GOOGLE_API_KEY: 'test-key' } });
+    collectDoctorRowsMock.mockResolvedValue([
+      { label: 'python3 available', ok: true },
+    ]);
+    bootstrapBlopMock.mockResolvedValue({
+      env: { GOOGLE_API_KEY: 'test-key' },
+    });
     addMCPServerToClientsStepMock.mockResolvedValue(['Cursor (project)']);
 
     const code = await runUpgrade({ ci: true, packageVersion: '0.3.0' });
 
     expect(code).toBe(0);
-    expect(bootstrapBlopMock).toHaveBeenCalledWith(expect.objectContaining({
-      packageSpec: 'blop-mcp==0.3.0',
-      reinstall: false,
-    }));
+    expect(bootstrapBlopMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        packageSpec: 'blop-mcp==0.3.0',
+        reinstall: false,
+      }),
+    );
     expect(outroMock).toHaveBeenCalledWith(expect.stringContaining('upgraded'));
   });
 
@@ -90,28 +98,44 @@ describe('upgrade flow', () => {
     collectDoctorRowsMock
       .mockResolvedValueOnce([{ label: 'venv python present', ok: false }])
       .mockResolvedValueOnce([{ label: 'venv python present', ok: true }]);
-    bootstrapBlopMock.mockResolvedValue({ env: { GOOGLE_API_KEY: 'test-key' } });
+    bootstrapBlopMock.mockResolvedValue({
+      env: { GOOGLE_API_KEY: 'test-key' },
+    });
     addMCPServerToClientsStepMock.mockResolvedValue([]);
 
     const code = await runUpgrade({ ci: true, reinstall: true });
 
     expect(code).toBe(0);
-    expect(bootstrapBlopMock).toHaveBeenCalledWith(expect.objectContaining({
-      reinstall: true,
-    }));
-    expect(outroMock).toHaveBeenCalledWith(expect.stringContaining('reinstalled'));
+    expect(bootstrapBlopMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reinstall: true,
+      }),
+    );
+    expect(outroMock).toHaveBeenCalledWith(
+      expect.stringContaining('reinstalled'),
+    );
   });
 
   it('returns a failing exit code when checks still fail after upgrade', async () => {
     collectDoctorRowsMock
       .mockResolvedValueOnce([{ label: 'blop server import', ok: false }])
-      .mockResolvedValueOnce([{ label: 'blop server import', ok: false, detail: 'ModuleNotFoundError' }]);
-    bootstrapBlopMock.mockResolvedValue({ env: { GOOGLE_API_KEY: 'test-key' } });
+      .mockResolvedValueOnce([
+        {
+          label: 'blop server import',
+          ok: false,
+          detail: 'ModuleNotFoundError',
+        },
+      ]);
+    bootstrapBlopMock.mockResolvedValue({
+      env: { GOOGLE_API_KEY: 'test-key' },
+    });
     addMCPServerToClientsStepMock.mockResolvedValue([]);
 
     const code = await runUpgrade({ ci: true });
 
     expect(code).toBe(1);
-    expect(outroMock).toHaveBeenCalledWith(expect.stringContaining('still need attention'));
+    expect(outroMock).toHaveBeenCalledWith(
+      expect.stringContaining('still need attention'),
+    );
   });
 });

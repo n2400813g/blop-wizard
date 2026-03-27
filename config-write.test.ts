@@ -15,7 +15,10 @@ describe('config-write', () => {
     fs.writeFileSync(file, '{\n  // comment\n  "mcpServers": {}\n}\n', 'utf8');
 
     writeJsoncValue(file, ['mcpServers', 'blop'], { command: 'uv' });
-    writeJsoncValue(file, ['mcpServers', 'blop'], { command: 'uv', args: ['run'] });
+    writeJsoncValue(file, ['mcpServers', 'blop'], {
+      command: 'uv',
+      args: ['run'],
+    });
 
     const raw = fs.readFileSync(file, 'utf8');
     expect(raw).toContain('"blop"');
@@ -26,7 +29,11 @@ describe('config-write', () => {
   it('upserts env values while preserving existing keys', () => {
     const dir = makeTempDir();
     const file = path.join(dir, '.env');
-    fs.writeFileSync(file, 'GOOGLE_API_KEY=old\nAPP_BASE_URL=https://old.example\n', 'utf8');
+    fs.writeFileSync(
+      file,
+      'GOOGLE_API_KEY=old\nAPP_BASE_URL=https://old.example\n',
+      'utf8',
+    );
 
     upsertEnvFile(file, {
       GOOGLE_API_KEY: 'new',

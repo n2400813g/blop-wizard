@@ -7,7 +7,10 @@ import { runMCPAdd, runMCPRemove } from './mcp.js';
 import { runDoctor } from './doctor.js';
 import { runRepair } from './repair.js';
 import { runUpgrade } from './upgrade.js';
-import { DEFAULT_BLOP_PACKAGE_NAME, DEFAULT_INSTALL_SOURCE } from './defaults.js';
+import {
+  DEFAULT_BLOP_PACKAGE_NAME,
+  DEFAULT_INSTALL_SOURCE,
+} from './defaults.js';
 
 const isInteractive = Boolean(process.stdin.isTTY);
 
@@ -19,7 +22,7 @@ function printCliError(error: unknown): void {
   console.error('Error:', error);
 }
 
-yargs(hideBin(process.argv))
+void yargs(hideBin(process.argv))
   .scriptName('blop-wizard')
   .usage('$0 [options]')
   .usage('$0 mcp add [options]')
@@ -34,7 +37,8 @@ yargs(hideBin(process.argv))
       cmd
         .option('blop-path', {
           type: 'string',
-          description: 'Path to local blop-mcp source repository (local mode only)',
+          description:
+            'Path to local blop-mcp source repository (local mode only)',
         })
         .option('install-source', {
           choices: ['pypi', 'local'] as const,
@@ -47,7 +51,8 @@ yargs(hideBin(process.argv))
         })
         .option('project-path', {
           type: 'string',
-          description: 'Project directory where .cursor/mcp.json should be written',
+          description:
+            'Project directory where .cursor/mcp.json should be written',
         })
         .option('package-name', {
           type: 'string',
@@ -75,7 +80,8 @@ yargs(hideBin(process.argv))
         })
         .option('targets', {
           type: 'array',
-          description: 'Specific client IDs/names to target (e.g. cursor vscode cline codex)',
+          description:
+            'Specific client IDs/names to target (e.g. cursor vscode cline codex)',
         })
         .option('skip-playwright', {
           type: 'boolean',
@@ -93,7 +99,9 @@ yargs(hideBin(process.argv))
           packageName: argv['package-name'],
           packageVersion: argv['package-version'],
           ci,
-          targets: Array.isArray(argv.targets) ? argv.targets.map((value) => String(value)) : [],
+          targets: Array.isArray(argv.targets)
+            ? argv.targets.map((value) => String(value))
+            : [],
           cursorOnly: argv['cursor-only'],
           includeClaude: argv['include-claude'],
           skipPlaywright: argv['skip-playwright'],
@@ -116,7 +124,8 @@ yargs(hideBin(process.argv))
             sub
               .option('blop-path', {
                 type: 'string',
-                description: 'Path to local blop-mcp source repository (local mode only)',
+                description:
+                  'Path to local blop-mcp source repository (local mode only)',
               })
               .option('install-source', {
                 choices: ['pypi', 'local'] as const,
@@ -124,11 +133,13 @@ yargs(hideBin(process.argv))
               })
               .option('runtime-path', {
                 type: 'string',
-                description: 'Directory to create/use the blop runtime environment',
+                description:
+                  'Directory to create/use the blop runtime environment',
               })
               .option('project-path', {
                 type: 'string',
-                description: 'Project directory where .cursor/mcp.json should be written',
+                description:
+                  'Project directory where .cursor/mcp.json should be written',
               })
               .option('package-name', {
                 type: 'string',
@@ -142,7 +153,8 @@ yargs(hideBin(process.argv))
               .option('ci', { type: 'boolean', default: false })
               .option('targets', {
                 type: 'array',
-                description: 'Specific client IDs/names to target (e.g. cursor vscode cline codex)',
+                description:
+                  'Specific client IDs/names to target (e.g. cursor vscode cline codex)',
               })
               .option('skip-playwright', { type: 'boolean', default: false })
               .option('global-cursor', {
@@ -160,7 +172,9 @@ yargs(hideBin(process.argv))
                 packageName: argv['package-name'],
                 packageVersion: argv['package-version'],
                 ci: argv.ci || !isInteractive,
-                targets: Array.isArray(argv.targets) ? argv.targets.map((value) => String(value)) : [],
+                targets: Array.isArray(argv.targets)
+                  ? argv.targets.map((value) => String(value))
+                  : [],
                 cursorOnly: argv['cursor-only'],
                 includeClaude: argv['include-claude'],
                 projectCursorConfig: !argv['global-cursor'],
@@ -179,19 +193,22 @@ yargs(hideBin(process.argv))
             sub
               .option('project-path', {
                 type: 'string',
-                description: 'Project directory where .cursor/mcp.json should be removed',
+                description:
+                  'Project directory where .cursor/mcp.json should be removed',
               })
               .option('cursor-only', { type: 'boolean', default: false })
               .option('include-claude', { type: 'boolean', default: true })
               .option('ci', { type: 'boolean', default: false })
               .option('targets', {
                 type: 'array',
-                description: 'Specific client IDs/names to target (e.g. cursor vscode cline codex)',
+                description:
+                  'Specific client IDs/names to target (e.g. cursor vscode cline codex)',
               })
               .option('global-cursor', {
                 type: 'boolean',
                 default: false,
-                description: 'Remove from global Cursor config instead of project config',
+                description:
+                  'Remove from global Cursor config instead of project config',
               }),
           async (argv) => {
             try {
@@ -199,7 +216,9 @@ yargs(hideBin(process.argv))
                 projectPath: argv['project-path'],
                 projectCursorConfig: !argv['global-cursor'],
                 ci: argv.ci || !isInteractive,
-                targets: Array.isArray(argv.targets) ? argv.targets.map((value) => String(value)) : [],
+                targets: Array.isArray(argv.targets)
+                  ? argv.targets.map((value) => String(value))
+                  : [],
                 cursorOnly: argv['cursor-only'],
                 includeClaude: argv['include-claude'],
               });
@@ -219,7 +238,8 @@ yargs(hideBin(process.argv))
       cmd
         .option('blop-path', {
           type: 'string',
-          description: 'Path to local blop-mcp source repository (local mode only)',
+          description:
+            'Path to local blop-mcp source repository (local mode only)',
         })
         .option('install-source', {
           choices: ['pypi', 'local'] as const,
@@ -229,7 +249,10 @@ yargs(hideBin(process.argv))
           type: 'string',
           description: 'Directory where the blop runtime environment lives',
         })
-        .option('package-name', { type: 'string', default: DEFAULT_BLOP_PACKAGE_NAME })
+        .option('package-name', {
+          type: 'string',
+          default: DEFAULT_BLOP_PACKAGE_NAME,
+        })
         .option('package-version', { type: 'string' })
         .option('verbose', { type: 'boolean', default: false }),
     async (argv) => {
@@ -251,7 +274,8 @@ yargs(hideBin(process.argv))
       cmd
         .option('blop-path', {
           type: 'string',
-          description: 'Path to local blop-mcp source repository (local mode only)',
+          description:
+            'Path to local blop-mcp source repository (local mode only)',
         })
         .option('install-source', {
           choices: ['pypi', 'local'] as const,
@@ -263,7 +287,8 @@ yargs(hideBin(process.argv))
         })
         .option('project-path', {
           type: 'string',
-          description: 'Project directory where .cursor/mcp.json should be written',
+          description:
+            'Project directory where .cursor/mcp.json should be written',
         })
         .option('package-name', {
           type: 'string',
@@ -275,7 +300,8 @@ yargs(hideBin(process.argv))
         .option('reinstall', {
           type: 'boolean',
           default: false,
-          description: 'Recreate the managed virtualenv before reinstalling blop',
+          description:
+            'Recreate the managed virtualenv before reinstalling blop',
         })
         .option('cursor-only', {
           type: 'boolean',
@@ -294,7 +320,8 @@ yargs(hideBin(process.argv))
         })
         .option('targets', {
           type: 'array',
-          description: 'Specific client IDs/names to target (e.g. cursor vscode cline codex)',
+          description:
+            'Specific client IDs/names to target (e.g. cursor vscode cline codex)',
         })
         .option('skip-playwright', {
           type: 'boolean',
@@ -312,7 +339,9 @@ yargs(hideBin(process.argv))
           packageVersion: argv['package-version'],
           reinstall: argv.reinstall,
           ci: argv.ci || !isInteractive,
-          targets: Array.isArray(argv.targets) ? argv.targets.map((value) => String(value)) : [],
+          targets: Array.isArray(argv.targets)
+            ? argv.targets.map((value) => String(value))
+            : [],
           cursorOnly: argv['cursor-only'],
           includeClaude: argv['include-claude'],
           skipPlaywright: argv['skip-playwright'],
@@ -331,7 +360,8 @@ yargs(hideBin(process.argv))
       cmd
         .option('blop-path', {
           type: 'string',
-          description: 'Path to local blop-mcp source repository (local mode only)',
+          description:
+            'Path to local blop-mcp source repository (local mode only)',
         })
         .option('install-source', {
           choices: ['pypi', 'local'] as const,
@@ -343,7 +373,8 @@ yargs(hideBin(process.argv))
         })
         .option('project-path', {
           type: 'string',
-          description: 'Project directory where .cursor/mcp.json should be written',
+          description:
+            'Project directory where .cursor/mcp.json should be written',
         })
         .option('package-name', {
           type: 'string',
@@ -369,7 +400,8 @@ yargs(hideBin(process.argv))
         })
         .option('targets', {
           type: 'array',
-          description: 'Specific client IDs/names to target (e.g. cursor vscode cline codex)',
+          description:
+            'Specific client IDs/names to target (e.g. cursor vscode cline codex)',
         })
         .option('skip-playwright', {
           type: 'boolean',
@@ -386,7 +418,9 @@ yargs(hideBin(process.argv))
           packageName: argv['package-name'],
           packageVersion: argv['package-version'],
           ci: argv.ci || !isInteractive,
-          targets: Array.isArray(argv.targets) ? argv.targets.map((value) => String(value)) : [],
+          targets: Array.isArray(argv.targets)
+            ? argv.targets.map((value) => String(value))
+            : [],
           cursorOnly: argv['cursor-only'],
           includeClaude: argv['include-claude'],
           skipPlaywright: argv['skip-playwright'],

@@ -17,7 +17,10 @@ function parseVersion(versionString: string): [number, number, number] {
   return [Number(major), Number(minor), Number(patch)];
 }
 
-function gteVersion(lhs: [number, number, number], rhs: [number, number, number]): boolean {
+function gteVersion(
+  lhs: [number, number, number],
+  rhs: [number, number, number],
+): boolean {
   if (lhs[0] !== rhs[0]) return lhs[0] > rhs[0];
   if (lhs[1] !== rhs[1]) return lhs[1] > rhs[1];
   return lhs[2] >= rhs[2];
@@ -55,19 +58,32 @@ function quoteShellArg(value: string): string {
 }
 
 export function getVenvBinDir(runtimePath: string): string {
-  return path.join(path.resolve(runtimePath), '.venv', process.platform === 'win32' ? 'Scripts' : 'bin');
+  return path.join(
+    path.resolve(runtimePath),
+    '.venv',
+    process.platform === 'win32' ? 'Scripts' : 'bin',
+  );
 }
 
 export function getVenvPythonPath(runtimePath: string): string {
-  return path.join(getVenvBinDir(runtimePath), process.platform === 'win32' ? 'python.exe' : 'python');
+  return path.join(
+    getVenvBinDir(runtimePath),
+    process.platform === 'win32' ? 'python.exe' : 'python',
+  );
 }
 
 export function getVenvBlopMcpPath(runtimePath: string): string {
-  return path.join(getVenvBinDir(runtimePath), process.platform === 'win32' ? 'blop-mcp.exe' : 'blop-mcp');
+  return path.join(
+    getVenvBinDir(runtimePath),
+    process.platform === 'win32' ? 'blop-mcp.exe' : 'blop-mcp',
+  );
 }
 
 export function getVenvPlaywrightPath(runtimePath: string): string {
-  return path.join(getVenvBinDir(runtimePath), process.platform === 'win32' ? 'playwright.exe' : 'playwright');
+  return path.join(
+    getVenvBinDir(runtimePath),
+    process.platform === 'win32' ? 'playwright.exe' : 'playwright',
+  );
 }
 
 export function buildBootstrapPlan(options: BootstrapOptions): {
@@ -77,7 +93,13 @@ export function buildBootstrapPlan(options: BootstrapOptions): {
   pythonPath: string;
   playwrightCommand?: string;
 } {
-  const { runtimePath, localSourcePath, installSource, packageSpec, skipPlaywright } = options;
+  const {
+    runtimePath,
+    localSourcePath,
+    installSource,
+    packageSpec,
+    skipPlaywright,
+  } = options;
   const pythonPath = getVenvPythonPath(runtimePath);
   const installCommand =
     installSource === 'local'
@@ -99,7 +121,9 @@ export function buildBootstrapPlan(options: BootstrapOptions): {
   };
 }
 
-export async function ensureBlopBootstrap(options: BootstrapOptions): Promise<void> {
+export async function ensureBlopBootstrap(
+  options: BootstrapOptions,
+): Promise<void> {
   const spinner = clack.spinner();
   const { runtimePath, installSource, reinstall } = options;
   fs.mkdirSync(runtimePath, { recursive: true });
@@ -109,7 +133,9 @@ export async function ensureBlopBootstrap(options: BootstrapOptions): Promise<vo
     throw new Error(`Python ${MIN_PYTHON_VERSION}+ is required.`);
   }
   if (!commandExists('uv')) {
-    throw new Error('uv is required. Install with: curl -LsSf https://astral.sh/uv/install.sh | sh');
+    throw new Error(
+      'uv is required. Install with: curl -LsSf https://astral.sh/uv/install.sh | sh',
+    );
   }
 
   if (reinstall && fs.existsSync(path.dirname(plan.pythonPath))) {
@@ -119,7 +145,9 @@ export async function ensureBlopBootstrap(options: BootstrapOptions): Promise<vo
   }
 
   if (fs.existsSync(plan.pythonPath)) {
-    clack.log.step(`Reusing existing virtual environment at ${path.dirname(plan.pythonPath)}`);
+    clack.log.step(
+      `Reusing existing virtual environment at ${path.dirname(plan.pythonPath)}`,
+    );
   } else {
     spinner.start('Creating virtual environment...');
     runInstall('uv venv', plan.venvCwd);
@@ -127,7 +155,9 @@ export async function ensureBlopBootstrap(options: BootstrapOptions): Promise<vo
   }
 
   spinner.start(
-    installSource === 'local' ? 'Installing blop package (editable)...' : 'Installing blop package from PyPI...',
+    installSource === 'local'
+      ? 'Installing blop package (editable)...'
+      : 'Installing blop package from PyPI...',
   );
   runInstall(plan.installCommand, plan.installCwd);
   spinner.stop('blop installed');
@@ -150,7 +180,11 @@ export function canUseClaudeCli(): boolean {
   return commandExists('claude');
 }
 
-export function runCommand(command: string): { ok: boolean; stdout: string; stderr: string } {
+export function runCommand(command: string): {
+  ok: boolean;
+  stdout: string;
+  stderr: string;
+} {
   try {
     const output = execSync(command, {
       encoding: 'utf8',

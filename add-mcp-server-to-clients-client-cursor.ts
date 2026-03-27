@@ -35,15 +35,19 @@ export interface CursorClientOptions {
 
 export class CursorMCPClient extends JsonConfigMCPClient {
   constructor(options: CursorClientOptions = {}) {
-    const configPathResolver = options.configPathResolver ?? defaultCursorConfigPath;
+    const configPathResolver =
+      options.configPathResolver ?? defaultCursorConfigPath;
     const clientOptions: JsonConfigClientOptions = {
       id: options.id ?? 'cursor',
       name: options.name ?? 'Cursor',
       aliases: options.aliases ?? ['cursor-global'],
       configPathResolver,
       serverPropertyName: 'mcpServers',
-      serverConfigBuilder: (runtimePath, env) => buildCursorServerConfig(runtimePath, env),
-      supportedCheck: options.supportedCheck ?? (() => cursorSupportedCheck(configPathResolver())),
+      serverConfigBuilder: (runtimePath, env) =>
+        buildCursorServerConfig(runtimePath, env),
+      supportedCheck:
+        options.supportedCheck ??
+        (() => cursorSupportedCheck(configPathResolver())),
     };
     super(clientOptions);
   }
@@ -62,7 +66,8 @@ export class CursorProjectMCPClient extends CursorMCPClient {
       name: 'Cursor (project)',
       aliases: ['cursor'],
       configPathResolver: () =>
-        options.configPathOverride ?? path.join(options.projectPath, '.cursor', 'mcp.json'),
+        options.configPathOverride ??
+        path.join(options.projectPath, '.cursor', 'mcp.json'),
       supportedCheck: options.supportedCheck ?? (() => true),
     });
   }

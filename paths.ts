@@ -6,7 +6,11 @@ function hasBlopSourceMarkers(targetPath: string): boolean {
   const pyproject = path.join(targetPath, 'pyproject.toml');
   const envExample = path.join(targetPath, '.env.example');
   const srcServer = path.join(targetPath, 'src', 'blop', 'server.py');
-  return fs.existsSync(pyproject) && fs.existsSync(envExample) && fs.existsSync(srcServer);
+  return (
+    fs.existsSync(pyproject) &&
+    fs.existsSync(envExample) &&
+    fs.existsSync(srcServer)
+  );
 }
 
 export function resolveLocalSourcePath(providedPath?: string): string {
@@ -15,7 +19,9 @@ export function resolveLocalSourcePath(providedPath?: string): string {
     return fromArg;
   }
 
-  const fromEnv = process.env.BLOP_USE_PATH ? path.resolve(process.env.BLOP_USE_PATH) : undefined;
+  const fromEnv = process.env.BLOP_USE_PATH
+    ? path.resolve(process.env.BLOP_USE_PATH)
+    : undefined;
   if (fromEnv && hasBlopSourceMarkers(fromEnv)) {
     return fromEnv;
   }

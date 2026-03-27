@@ -82,7 +82,10 @@ function createClientRegistry(options: ClientSelectionOptions): MCPClient[] {
   return clients;
 }
 
-function filterClients(clients: MCPClient[], options: ClientSelectionOptions): MCPClient[] {
+function filterClients(
+  clients: MCPClient[],
+  options: ClientSelectionOptions,
+): MCPClient[] {
   if (options.cursorOnly) {
     return clients.filter((client) => client.id.startsWith('cursor'));
   }
@@ -96,19 +99,30 @@ function filterClients(clients: MCPClient[], options: ClientSelectionOptions): M
     return selected;
   }
 
-  const normalizedTargets = options.targets.map((target) => target.trim().toLowerCase()).filter(Boolean);
-  return selected.filter((client) => normalizedTargets.some((target) => client.matchesTarget(target)));
+  const normalizedTargets = options.targets
+    .map((target) => target.trim().toLowerCase())
+    .filter(Boolean);
+  return selected.filter((client) =>
+    normalizedTargets.some((target) => client.matchesTarget(target)),
+  );
 }
 
-function parseUnknownTargets(clients: MCPClient[], targets?: string[]): string[] {
+function parseUnknownTargets(
+  clients: MCPClient[],
+  targets?: string[],
+): string[] {
   if (!targets || targets.length === 0) return [];
   return targets
     .map((target) => target.trim())
     .filter(Boolean)
-    .filter((target) => !clients.some((client) => client.matchesTarget(target)));
+    .filter(
+      (target) => !clients.some((client) => client.matchesTarget(target)),
+    );
 }
 
-async function resolveSupportedClients(clients: MCPClient[]): Promise<MCPClient[]> {
+async function resolveSupportedClients(
+  clients: MCPClient[],
+): Promise<MCPClient[]> {
   const supported: MCPClient[] = [];
   for (const client of clients) {
     if (await client.isClientSupported()) {
@@ -122,7 +136,9 @@ function getClients(options: ClientSelectionOptions): MCPClient[] {
   return filterClients(createClientRegistry(options), options);
 }
 
-export async function addMCPServerToClientsStep(options: AddMCPServerOptions): Promise<string[]> {
+export async function addMCPServerToClientsStep(
+  options: AddMCPServerOptions,
+): Promise<string[]> {
   const allClients = createClientRegistry(options);
   const unknownTargets = parseUnknownTargets(allClients, options.targets);
   if (unknownTargets.length > 0) {
@@ -149,7 +165,9 @@ export async function addMCPServerToClientsStep(options: AddMCPServerOptions): P
         required: true,
       }),
     );
-    selected = supported.filter((client) => selectedNames.includes(client.name));
+    selected = supported.filter((client) =>
+      selectedNames.includes(client.name),
+    );
   }
 
   const alreadyInstalled: MCPClient[] = [];
@@ -170,7 +188,9 @@ export async function addMCPServerToClientsStep(options: AddMCPServerOptions): P
       }),
     );
     if (!shouldReinstall) {
-      selected = selected.filter((client) => !alreadyInstalled.includes(client));
+      selected = selected.filter(
+        (client) => !alreadyInstalled.includes(client),
+      );
     }
   }
 
@@ -189,7 +209,10 @@ export async function addMCPServerToClientsStep(options: AddMCPServerOptions): P
     if (result.success) {
       successes.push(client.name);
     } else {
-      failures.push({ name: client.name, error: result.error ?? 'Unknown error' });
+      failures.push({
+        name: client.name,
+        error: result.error ?? 'Unknown error',
+      });
     }
   }
   spinner.stop('Client setup complete');
@@ -198,11 +221,15 @@ export async function addMCPServerToClientsStep(options: AddMCPServerOptions): P
     clack.log.success(`Configured: ${successes.join(', ')}`);
   }
   if (failures.length > 0) {
-    clack.log.error(`Failed:\n${failures.map((item) => `  - ${item.name}: ${item.error}`).join('\n')}`);
+    clack.log.error(
+      `Failed:\n${failures.map((item) => `  - ${item.name}: ${item.error}`).join('\n')}`,
+    );
   }
 
   if (successes.length > 0) {
-    clack.log.message(chalk.dim('Restart your coding clients to load the updated MCP servers.'));
+    clack.log.message(
+      chalk.dim('Restart your coding clients to load the updated MCP servers.'),
+    );
   }
 
   return successes;
@@ -220,7 +247,10 @@ export async function removeMCPServerFromClientsStep(
 
   const removable: MCPClient[] = [];
   for (const client of clients) {
-    if ((await client.isClientSupported()) && (await client.isServerInstalled())) {
+    if (
+      (await client.isClientSupported()) &&
+      (await client.isServerInstalled())
+    ) {
       removable.push(client);
     }
   }
@@ -243,7 +273,9 @@ export async function removeMCPServerFromClientsStep(
           required: true,
         }),
       );
-  const selectedClients = removable.filter((client) => selectedNames.includes(client.name));
+  const selectedClients = removable.filter((client) =>
+    selectedNames.includes(client.name),
+  );
   const removed: string[] = [];
   for (const client of selectedClients) {
     const result = await client.removeServer();
