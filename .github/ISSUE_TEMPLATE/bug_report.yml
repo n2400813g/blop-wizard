@@ -9,6 +9,8 @@ body:
 
         If this is a security-sensitive issue, stop here and follow `SECURITY.md` instead of filing a public bug.
 
+        Maintainers route issues with the label convention in `.github/TRIAGE.md`.
+
   - type: dropdown
     id: area
     attributes:

@@ -253,6 +253,8 @@ pnpm build
 - License: [MIT](LICENSE)
 - Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Security policy: [SECURITY.md](SECURITY.md)
+- Code owners: [`.github/CODEOWNERS`](.github/CODEOWNERS)
+- Maintainer triage guide: [`.github/TRIAGE.md`](.github/TRIAGE.md)
 - CI release gate: [`.github/workflows/package-verify.yml`](.github/workflows/package-verify.yml)
 - Canonical maintainer verification: `pnpm test:integration` and `pnpm publish:check`
 

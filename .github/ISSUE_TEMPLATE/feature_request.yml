@@ -9,6 +9,8 @@ body:
 
         If the request is really about the Python MCP runtime or release-check behavior, note that clearly so maintainers can route it to `blop-mcp` if needed.
 
+        Maintainers route issues with the label convention in `.github/TRIAGE.md`.
+
   - type: dropdown
     id: area
     attributes:

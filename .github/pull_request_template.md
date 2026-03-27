@@ -12,6 +12,14 @@ Explain why this change is needed and what risk, maintenance burden, or user pro
 - [ ] If I changed MCP client configuration behavior, I updated the relevant tests and user-facing docs.
 - [ ] I did not commit generated artifacts, secrets, project-local MCP config, `dist/`, or alternate lockfiles.
 
+## Routing
+
+Maintainer labels should follow [`.github/TRIAGE.md`](.github/TRIAGE.md):
+
+- one `kind:*` label
+- at least one `area:*` label
+- keep `triage` until the first maintainer review and routing pass are complete
+
 ## Testing
 
 - [ ] `pnpm test:integration`

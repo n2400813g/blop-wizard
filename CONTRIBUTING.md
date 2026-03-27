@@ -49,6 +49,12 @@ Do not open public issues for vulnerabilities or secret-exposure bugs.
 
 Follow [SECURITY.md](SECURITY.md) for private reporting guidance. If a report appears to belong in `blop-mcp` rather than `blop-wizard`, maintainers may route it accordingly.
 
+## Ownership and triage
+
+- Review ownership is defined in [`.github/CODEOWNERS`](.github/CODEOWNERS).
+- Maintainer routing and label conventions are documented in [`.github/TRIAGE.md`](.github/TRIAGE.md).
+- As a contributor, you do not need to manage labels yourself, but clear issue descriptions and PR summaries make routing much faster.
+
 ## Release expectations
 
 Before publishing:
